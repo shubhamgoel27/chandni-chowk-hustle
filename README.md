@@ -4,6 +4,11 @@
 
 Welcome to the chaotic, colorful, and deliciously dangerous streets of Old Delhi! **Chandni Chowk Hustle** is a high-octane endless runner (well, until the Red Fort) where you dodge rickshaws, outsmart monkeys, and grab as many samosas as you can!
 
+
+### [🎮 Play on Replit](https://chandni-chowk-hustle.replit.app)
+
+![Chandni Chowk Hustle Gameplay](game_screen.png)
+
 ## 🎮 How to Play
 
 Your goal is simple: **Run. Jump. Eat.**  
