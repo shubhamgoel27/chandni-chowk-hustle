@@ -25,6 +25,7 @@ const SPRITES = {
     pigeon: '🐦', banana: '🍌',
     dog: '🐕', heart: '❤️',
     chai: '🍵', paan: '🌿', diya: '🪔', jalebi: '🍥',
+    tulsi: '🌱', mango: '🥭', coconut: '🥥',
     kite: '🪁', marigold: '🌼', bell: '🔔',
     autoRickshaw: '🛺'
 };
@@ -522,9 +523,9 @@ class Player {
         let drawX = this.x - gameState.cameraX;
         ctx.save();
 
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.beginPath();
-        ctx.ellipse(drawX + this.w / 2, GROUND_Y, 30, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(drawX + this.w / 2, GROUND_Y, 25, 7, 0, 0, Math.PI * 2);
         ctx.fill();
 
         if (this.invulnTimer > 0 && this.invulnTimer % 4 < 2) {
@@ -534,7 +535,6 @@ class Player {
         ctx.translate(drawX + this.w / 2, this.y + this.h);
 
         if (this.isDashing) {
-            ctx.globalAlpha = 0.8;
             ctx.shadowColor = '#FF9800';
             ctx.shadowBlur = 20;
         }
@@ -546,17 +546,223 @@ class Player {
             ctx.scale(1, 0.7);
         } else {
             ctx.scale(1, this.scaleY);
-            let rot = (this.vx !== 0 && this.grounded) ? Math.sin(this.animTimer * 0.3) * 0.15 : 0;
-            ctx.rotate(rot);
         }
 
-        ctx.font = '100px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.sprite, 0, -5);
+        const isRaju = (gameState.character === 'raju');
+        const skinColor = '#C68642';
+        const hairColor = isRaju ? '#1A1A2E' : '#1A1A2E';
+        const shirtColor = isRaju ? '#FF6F00' : '#E91E63';
+        const pantsColor = isRaju ? '#1565C0' : '#7B1FA2';
+        const shoeColor = '#5D4037';
+
+        const walking = (Math.abs(this.vx) > 1 && this.grounded);
+        const running = (Math.abs(this.vx) > 5 && this.grounded);
+        const animSpeed = running ? 0.5 : 0.3;
+        const limbSwing = walking ? Math.sin(this.animTimer * animSpeed) : 0;
+        const armSwing = walking ? Math.sin(this.animTimer * animSpeed) * 0.8 : 0;
+        const bodyBob = walking ? Math.abs(Math.sin(this.animTimer * animSpeed)) * 3 : 0;
+        const jumpPose = !this.grounded;
+
+        const bY = -bodyBob;
+
+        ctx.fillStyle = pantsColor;
+        if (jumpPose) {
+            ctx.save();
+            ctx.translate(-8, bY - 18);
+            ctx.rotate(-0.4);
+            ctx.fillRect(-5, 0, 10, 30);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(8, bY - 18);
+            ctx.rotate(0.4);
+            ctx.fillRect(-5, 0, 10, 30);
+            ctx.restore();
+        } else {
+            ctx.save();
+            ctx.translate(-8, bY - 18);
+            ctx.rotate(limbSwing * 0.6);
+            ctx.fillRect(-5, 0, 10, 28);
+            ctx.fillStyle = shoeColor;
+            ctx.fillRect(-6, 25, 12, 7);
+            ctx.beginPath();
+            ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            ctx.save();
+            ctx.translate(8, bY - 18);
+            ctx.rotate(-limbSwing * 0.6);
+            ctx.fillStyle = pantsColor;
+            ctx.fillRect(-5, 0, 10, 28);
+            ctx.fillStyle = shoeColor;
+            ctx.fillRect(-6, 25, 12, 7);
+            ctx.beginPath();
+            ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        if (jumpPose) {
+            ctx.fillStyle = shoeColor;
+            ctx.save();
+            ctx.translate(-12, bY + 8);
+            ctx.rotate(-0.3);
+            ctx.fillRect(-4, 0, 10, 7);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(12, bY + 8);
+            ctx.rotate(0.3);
+            ctx.fillRect(-4, 0, 10, 7);
+            ctx.restore();
+        }
+
+        ctx.fillStyle = shirtColor;
+        const torsoY = bY - 55;
+        ctx.beginPath();
+        ctx.moveTo(-16, torsoY + 38);
+        ctx.lineTo(-14, torsoY);
+        ctx.quadraticCurveTo(0, torsoY - 5, 14, torsoY);
+        ctx.lineTo(16, torsoY + 38);
+        ctx.closePath();
+        ctx.fill();
+
+        if (isRaju) {
+            ctx.fillStyle = '#FFB300';
+            ctx.fillRect(-12, torsoY + 2, 24, 4);
+            ctx.beginPath();
+            ctx.moveTo(0, torsoY + 2);
+            ctx.lineTo(3, torsoY - 2);
+            ctx.lineTo(-3, torsoY - 2);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.arc(-6, torsoY + 15, 3, 0, Math.PI * 2);
+            ctx.arc(6, torsoY + 15, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#F48FB1';
+            ctx.fillRect(-14, torsoY + 35, 28, 3);
+        }
+
+        ctx.fillStyle = skinColor;
+        if (jumpPose) {
+            ctx.save();
+            ctx.translate(-16, torsoY + 5);
+            ctx.rotate(-1.2);
+            ctx.fillRect(-4, 0, 8, 25);
+            ctx.beginPath();
+            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            ctx.save();
+            ctx.translate(16, torsoY + 5);
+            ctx.rotate(1.2);
+            ctx.fillRect(-4, 0, 8, 25);
+            ctx.beginPath();
+            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        } else {
+            ctx.save();
+            ctx.translate(-16, torsoY + 5);
+            ctx.rotate(armSwing * 0.7);
+            ctx.fillRect(-4, 0, 8, 25);
+            ctx.beginPath();
+            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            ctx.save();
+            ctx.translate(16, torsoY + 5);
+            ctx.rotate(-armSwing * 0.7);
+            ctx.fillRect(-4, 0, 8, 25);
+            ctx.beginPath();
+            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        const headY = torsoY - 22;
+        ctx.fillStyle = skinColor;
+        ctx.beginPath();
+        ctx.ellipse(0, headY, 16, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1A1A1A';
+        const eyeY = headY + 2;
+        ctx.beginPath();
+        ctx.ellipse(-6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.ellipse(-5, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
+        ctx.ellipse(7, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#E65100';
+        ctx.beginPath();
+        ctx.arc(0, headY + 8, 2.5, 0, Math.PI, false);
+        ctx.fill();
+
+        if (walking || running) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(2, headY + 14, running ? 5 : 3.5, 0, Math.PI, false);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = hairColor;
+        if (isRaju) {
+            ctx.beginPath();
+            ctx.ellipse(0, headY - 12, 17, 10, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-12, headY - 5, 5, 10, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(12, headY - 5, 5, 10, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            const spikeHeights = [3, 1, 4, 2, 3];
+            for (let spike = 0; spike < 5; spike++) {
+                const sx = -10 + spike * 5;
+                ctx.beginPath();
+                ctx.moveTo(sx - 3, headY - 18);
+                ctx.lineTo(sx, headY - 26 - spikeHeights[spike]);
+                ctx.lineTo(sx + 3, headY - 18);
+                ctx.fill();
+            }
+        } else {
+            ctx.beginPath();
+            ctx.ellipse(0, headY - 10, 18, 12, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-14, headY, 5, 15, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(14, headY, 5, 15, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FF5722';
+            ctx.beginPath();
+            ctx.arc(14, headY - 8, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.arc(14, headY - 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
         if (gameState.chaiBoostTimer > 0) {
-            ctx.font = '30px Arial';
-            ctx.fillText('✨', 25, -80);
+            const sparkleT = Date.now() / 100;
+            ctx.fillStyle = '#FFD700';
+            for (let i = 0; i < 4; i++) {
+                const angle = sparkleT + i * 1.57;
+                const sx = Math.cos(angle) * 30;
+                const sy = headY - 30 + Math.sin(angle) * 10;
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('✨', sx, sy);
+            }
         }
 
         ctx.restore();
@@ -688,8 +894,9 @@ class Entity {
             ctx.rotate(Math.sin(Date.now() / 300) * 0.1);
         } else if (!this.isHazard) {
             ctx.translate(0, Math.sin(Date.now() / 200) * 10);
-            if (this.subtype === 'chai' || this.subtype === 'diya') {
-                ctx.shadowColor = this.subtype === 'chai' ? '#FF9800' : '#FFD700';
+            const glowColors = { chai: '#FF9800', diya: '#FFD700', paan: '#00E676', tulsi: '#4CAF50', mango: '#FFC107', coconut: '#8D6E63' };
+            if (glowColors[this.subtype]) {
+                ctx.shadowColor = glowColors[this.subtype];
                 ctx.shadowBlur = 15 + Math.sin(Date.now() / 200 + this.glowPhase) * 8;
             }
         }
@@ -937,6 +1144,14 @@ function initLevel(lvlIdx) {
             gameState.puddles.push(new WaterPuddle(x + Math.random() * 100));
         }
 
+        const lifeUpChance = 0.05 + (gameState.level - 1) * 0.06;
+        const lifeUpItems = [
+            { sprite: SPRITES.paan, sub: 'paan' },
+            { sprite: SPRITES.tulsi, sub: 'tulsi' },
+            { sprite: SPRITES.mango, sub: 'mango' },
+            { sprite: SPRITES.coconut, sub: 'coconut' }
+        ];
+
         if (Math.random() < 0.45) {
             let shopCount = Math.floor(Math.random() * 2) + 1;
             for (let s = 0; s < shopCount; s++) {
@@ -944,15 +1159,17 @@ function initLevel(lvlIdx) {
                 gameState.platforms.push(new Platform(x, type));
 
                 if (Math.random() > 0.4) {
-                    let foodItems = [...SPRITES.food];
-                    if (Math.random() < 0.2) {
+                    if (Math.random() < lifeUpChance) {
+                        const item = lifeUpItems[Math.floor(Math.random() * lifeUpItems.length)];
+                        entities.push(new Entity(x + 70, GROUND_Y - PLATFORM_H - 100, item.sprite, false, item.sub));
+                    } else if (Math.random() < 0.2) {
                         entities.push(new Entity(x + 70, GROUND_Y - PLATFORM_H - 100, SPRITES.chai, false, 'chai'));
                     } else if (Math.random() < 0.15) {
                         entities.push(new Entity(x + 70, GROUND_Y - PLATFORM_H - 100, SPRITES.diya, false, 'diya'));
                     } else if (Math.random() < 0.15) {
                         entities.push(new Entity(x + 70, GROUND_Y - PLATFORM_H - 100, SPRITES.jalebi, false, 'jalebi'));
                     } else {
-                        let foodType = foodItems[Math.floor(Math.random() * foodItems.length)];
+                        let foodType = SPRITES.food[Math.floor(Math.random() * SPRITES.food.length)];
                         entities.push(new Entity(x + 70, GROUND_Y - PLATFORM_H - 100, foodType, false));
                     }
                 } else if (gameState.level > 2 || Math.random() < 0.3) {
@@ -972,15 +1189,22 @@ function initLevel(lvlIdx) {
                     entities.push(new Entity(x + gap / 2, GROUND_Y - 80, SPRITES.rickshaw, true, 'auto'));
                 }
             } else if (Math.random() > 0.5) {
-                if (Math.random() < 0.25) {
+                if (Math.random() < lifeUpChance + 0.1) {
+                    const item = lifeUpItems[Math.floor(Math.random() * lifeUpItems.length)];
+                    entities.push(new Entity(x + gap / 2, GROUND_Y - 80, item.sprite, false, item.sub));
+                } else if (Math.random() < 0.25) {
                     entities.push(new Entity(x + gap / 2, GROUND_Y - 80, SPRITES.chai, false, 'chai'));
-                } else if (Math.random() < 0.2) {
-                    entities.push(new Entity(x + gap / 2, GROUND_Y - 80, SPRITES.paan, false, 'paan'));
                 } else {
                     let foodType = SPRITES.food[Math.floor(Math.random() * SPRITES.food.length)];
                     entities.push(new Entity(x + gap / 2, GROUND_Y - 80, foodType, false));
                 }
             }
+
+            if (gameState.level >= 3 && Math.random() < 0.08 * gameState.level) {
+                const lifeItem = lifeUpItems[Math.floor(Math.random() * lifeUpItems.length)];
+                entities.push(new Entity(x + gap / 2 + 150, GROUND_Y - 80, lifeItem.sprite, false, lifeItem.sub));
+            }
+
             x += gap;
         }
     }
@@ -1078,10 +1302,30 @@ function checkCollisions() {
                     addScorePopup(ent.x + 40, ent.y, '+150', '#FFA000');
                 } else if (ent.subtype === 'paan') {
                     points = 125;
-                    gameState.lives = Math.min(gameState.lives + 1, 7);
+                    gameState.lives = Math.min(gameState.lives + 1, 9);
                     AudioManager.powerUp();
                     VFX.createSparkle(ent.x + 40, ent.y + 40, 10, '#00E676');
-                    addScorePopup(ent.x + 40, ent.y, '+1 LIFE!', '#00E676');
+                    addScorePopup(ent.x + 40, ent.y, '+1 LIFE! PAAN', '#00E676');
+                } else if (ent.subtype === 'tulsi') {
+                    points = 100;
+                    gameState.lives = Math.min(gameState.lives + 1, 9);
+                    AudioManager.powerUp();
+                    VFX.createSparkle(ent.x + 40, ent.y + 40, 12, '#4CAF50');
+                    addScorePopup(ent.x + 40, ent.y, '+1 LIFE! TULSI', '#4CAF50');
+                } else if (ent.subtype === 'mango') {
+                    points = 150;
+                    gameState.lives = Math.min(gameState.lives + 2, 9);
+                    AudioManager.powerUp();
+                    VFX.createSparkle(ent.x + 40, ent.y + 40, 15, '#FFC107');
+                    VFX.flash('#FFC107', 0.1);
+                    addScorePopup(ent.x + 40, ent.y, '+2 LIVES! MANGO', '#FFC107');
+                } else if (ent.subtype === 'coconut') {
+                    points = 100;
+                    gameState.lives = Math.min(gameState.lives + 1, 9);
+                    player.invulnTimer = Math.max(player.invulnTimer, 90);
+                    AudioManager.powerUp();
+                    VFX.createSparkle(ent.x + 40, ent.y + 40, 12, '#8D6E63');
+                    addScorePopup(ent.x + 40, ent.y, '+1 LIFE! COCONUT', '#8D6E63');
                 } else {
                     AudioManager.collect();
                     VFX.createCollectBurst(ent.x + 40, ent.y + 40);
