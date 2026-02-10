@@ -13,10 +13,11 @@ class Particle {
     }
 
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += this.gravity;
-        this.life -= this.decay;
+        const dt = (typeof gameState !== 'undefined') ? gameState.deltaTime : 1;
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.vy += this.gravity * dt;
+        this.life -= this.decay * dt;
     }
 
     draw(ctx, cameraX) {
@@ -64,17 +65,18 @@ const VFX = {
     flashColor: 'white',
 
     update() {
+        const dt = (typeof gameState !== 'undefined') ? gameState.deltaTime : 1;
         this.particles = this.particles.filter(p => p.life > 0);
         this.particles.forEach(p => p.update());
 
         if (this.shakeAmount > 0.5) {
-            this.shakeAmount *= this.shakeDecay;
+            this.shakeAmount *= Math.pow(this.shakeDecay, dt);
         } else {
             this.shakeAmount = 0;
         }
 
         if (this.flashAlpha > 0) {
-            this.flashAlpha -= 0.05;
+            this.flashAlpha -= 0.05 * dt;
         }
     },
 

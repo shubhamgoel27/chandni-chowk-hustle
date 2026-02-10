@@ -65,6 +65,9 @@ let gameState = {
     stringLights: [],
     rangolis: [],
     scorePopups: [],
+    lastFrameTime: 0,
+    deltaTime: 1,
+    cleanupAccum: 0,
     frameCount: 0,
     bossDefeated: false
 };
@@ -143,7 +146,7 @@ class ScorePopup {
         this.text = text; this.color = color;
         this.life = 1.0; this.vy = -2;
     }
-    update() { this.y += this.vy; this.life -= 0.02; }
+    update() { const dt = gameState.deltaTime; this.y += this.vy * dt; this.life -= 0.02 * dt; }
     draw() {
         if (this.life <= 0) return;
         const drawX = this.x - gameState.cameraX;
@@ -169,10 +172,11 @@ class Projectile {
         this.rot = 0;
     }
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.15;
-        this.rot += 0.1;
+        const dt = gameState.deltaTime;
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.vy += 0.15 * dt;
+        this.rot += 0.1 * dt;
         if (this.y > GROUND_Y) this.active = false;
     }
     draw() {
@@ -198,6 +202,7 @@ class Pigeon {
         this.flip = Math.random() > 0.5;
     }
     update() {
+        const dt = gameState.deltaTime;
         if (!this.flying && Math.abs(this.x - player.x) < 200) {
             this.flying = true;
             this.vy = -4 - Math.random() * 3;
@@ -205,9 +210,9 @@ class Pigeon {
             this.flip = (this.vx < 0);
         }
         if (this.flying) {
-            this.x += this.vx;
-            this.y += this.vy;
-            this.vy -= 0.15;
+            this.x += this.vx * dt;
+            this.y += this.vy * dt;
+            this.vy -= 0.15 * dt;
         }
     }
     draw() {
@@ -431,10 +436,11 @@ class Player {
     }
 
     update() {
+        const dt = gameState.deltaTime;
         const speedMult = gameState.chaiBoostTimer > 0 ? 1.5 : 1;
 
         if (this.isDashing) {
-            this.dashTimer--;
+            this.dashTimer -= dt;
             this.vx = this.facingRight ? this.dashSpeed : -this.dashSpeed;
             VFX.createDashTrail(this.x + (this.facingRight ? 0 : this.w), this.y + this.h / 2, this.facingRight);
             if (this.dashTimer <= 0) {
@@ -442,10 +448,10 @@ class Player {
                 this.dashCooldown = this.dashCooldownMax;
             }
         } else if (this.isSliding) {
-            this.slideTimer--;
-            this.vx *= 0.95;
-            this.dustTimer++;
-            if (this.dustTimer % 4 === 0) {
+            this.slideTimer -= dt;
+            this.vx *= Math.pow(0.95, dt);
+            this.dustTimer += dt;
+            if (Math.floor(this.dustTimer) % 4 === 0) {
                 VFX.createDust(this.x + this.w / 2, this.y + this.h, 2);
             }
             if (this.slideTimer <= 0 || !keys.down) {
@@ -454,27 +460,27 @@ class Player {
         } else {
             if (keys.right) { this.vx = this.speed * speedMult; this.facingRight = true; this.animTimer++; }
             else if (keys.left) { this.vx = -this.speed * speedMult; this.facingRight = false; this.animTimer++; }
-            else { this.vx *= 0.8; if (Math.abs(this.vx) < 1) this.vx = 0; }
+            else { this.vx *= Math.pow(0.8, dt); if (Math.abs(this.vx) < 1) this.vx = 0; }
         }
 
-        if (this.dashCooldown > 0) this.dashCooldown--;
-        if (this.invulnTimer > 0) this.invulnTimer--;
+        if (this.dashCooldown > 0) this.dashCooldown -= dt;
+        if (this.invulnTimer > 0) this.invulnTimer -= dt;
 
         if (gameState.chaiBoostTimer > 0) {
-            gameState.chaiBoostTimer--;
+            gameState.chaiBoostTimer -= dt;
             if (Math.abs(this.vx) > 2) {
                 VFX.createSpeedLines(this.x + this.w, this.y + this.h / 2);
             }
         }
 
-        this.x += this.vx;
+        this.x += this.vx * dt;
         if (this.x < 0) this.x = 0;
         if (this.x > gameState.gameWidth) this.x = gameState.gameWidth;
 
         if (!this.isDashing) {
-            this.vy += GRAVITY;
+            this.vy += GRAVITY * dt;
         }
-        this.y += this.vy;
+        this.y += this.vy * dt;
 
         let wasGrounded = this.grounded;
         this.grounded = false;
@@ -483,7 +489,7 @@ class Player {
             gameState.platforms.forEach(p => {
                 if (this.vy > 0 &&
                     this.y + this.h > p.y &&
-                    this.y + this.h < p.y + this.vy + 30 &&
+                    this.y + this.h < p.y + this.vy * dt + 30 &&
                     this.x + this.w > p.x + 20 &&
                     this.x < p.x + p.w - 20) {
                     this.y = p.y - this.h;
@@ -509,25 +515,25 @@ class Player {
         }
 
         if (this.doubleJumpTimer > 0) {
-            this.doubleJumpTimer--;
+            this.doubleJumpTimer -= dt;
             if (this.doubleJumpTimer <= 0) {
                 this.hasDoubleJumpPower = false;
             }
         }
         if (this.scoreMultTimer > 0) {
-            this.scoreMultTimer--;
+            this.scoreMultTimer -= dt;
             if (this.scoreMultTimer <= 0) {
                 this.scoreMultiplier = 1;
             }
         }
 
-        this.scaleY += (1 - this.scaleY) * 0.15;
+        this.scaleY += (1 - this.scaleY) * (1 - Math.pow(0.85, dt));
         if (Math.abs(this.scaleY - 1) < 0.01) this.scaleY = 1;
         if (!this.grounded && !this.isDashing) this.scaleY = 1.05;
 
         if (this.grounded && Math.abs(this.vx) > 3) {
-            this.dustTimer++;
-            if (this.dustTimer % 8 === 0) {
+            this.dustTimer += dt;
+            if (Math.floor(this.dustTimer) % 8 === 0) {
                 VFX.createDust(this.x + this.w / 2, this.y + this.h, 2);
             }
         }
@@ -549,7 +555,7 @@ class Player {
         let targetCamX = this.x - canvas.width / 3;
         if (targetCamX < 0) targetCamX = 0;
         if (targetCamX > gameState.gameWidth - canvas.width) targetCamX = gameState.gameWidth - canvas.width;
-        gameState.cameraX += (targetCamX - gameState.cameraX) * 0.1;
+        gameState.cameraX += (targetCamX - gameState.cameraX) * (1 - Math.pow(0.9, dt));
     }
 
     draw() {
@@ -561,7 +567,7 @@ class Player {
         ctx.ellipse(drawX + this.w / 2, GROUND_Y, 20, 6, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        if (this.invulnTimer > 0 && this.invulnTimer % 4 < 2) {
+        if (this.invulnTimer > 0 && Math.floor(this.invulnTimer) % 4 < 2) {
             ctx.globalAlpha = 0.5;
         }
 
@@ -869,18 +875,19 @@ class Entity {
     }
 
     update() {
+        const dt = gameState.deltaTime;
         if (this.type === SPRITES.cow) {
             if (this.state === 'walk') {
-                this.x += this.vx;
+                this.x += this.vx * dt;
                 if (this.x > this.origX + this.patrolDist || this.x < this.origX - this.patrolDist) {
                     this.vx *= -1;
                 }
-                if (Math.random() < 0.005) {
+                if (Math.random() < 0.005 * dt) {
                     this.state = 'graze';
                     this.stateTimer = 50 + Math.random() * 100;
                 }
             } else if (this.state === 'graze') {
-                this.stateTimer--;
+                this.stateTimer -= dt;
                 if (this.stateTimer <= 0) {
                     this.state = 'walk';
                     if (Math.random() < 0.5) this.vx *= -1;
@@ -890,7 +897,7 @@ class Entity {
 
         if (this.type === SPRITES.dog) {
             if (this.state === 'walk') {
-                this.x += this.vx;
+                this.x += this.vx * dt;
                 if (this.x > this.origX + this.patrolDist || this.x < this.origX - this.patrolDist) {
                     this.vx *= -1;
                 }
@@ -900,7 +907,7 @@ class Entity {
             } else if (this.state === 'chase') {
                 const dir = player.x > this.x ? 1 : -1;
                 this.vx = dir * 3;
-                this.x += this.vx;
+                this.x += this.vx * dt;
                 if (Math.abs(this.x - player.x) > 400) {
                     this.state = 'walk';
                     this.vx = (Math.random() < 0.5 ? 1 : -1) * 1.5;
@@ -909,7 +916,7 @@ class Entity {
         }
 
         if (this.type === SPRITES.rickshaw || this.subtype === 'auto') {
-            this.hornTimer++;
+            this.hornTimer += dt;
             if (this.hornTimer > 200 && Math.abs(this.x - player.x) < 400) {
                 AudioManager.rickshawHorn();
                 this.hornTimer = 0;
@@ -920,7 +927,7 @@ class Entity {
             const dist = this.x - player.x;
             const inRange = Math.abs(dist) < 1200;
             if (inRange) {
-                this.throwTimer++;
+                this.throwTimer += dt;
                 if (this.throwTimer > 150) {
                     this.throwTimer = 0;
                     const dir = (dist > 0) ? -1 : 1;
@@ -1196,9 +1203,10 @@ class BossMonkey {
 
     update() {
         if (!this.active) return;
+        const dt = gameState.deltaTime;
         if (this.defeated) {
-            this.defeatTimer++;
-            this.y += 1;
+            this.defeatTimer += dt;
+            this.y += 1 * dt;
             if (this.defeatTimer > 120) {
                 this.active = false;
                 gameState.bossDefeated = true;
@@ -1207,18 +1215,18 @@ class BossMonkey {
         }
 
         if (this.stunTimer > 0) {
-            this.stunTimer--;
+            this.stunTimer -= dt;
             this.shakeTimer = this.stunTimer;
             return;
         }
 
         const speed = this.moveSpeed + this.phase * 1;
-        this.x += this.moveDir * speed;
+        this.x += this.moveDir * speed * dt;
         if (this.x > this.baseX + this.patrolRange) this.moveDir = -1;
         if (this.x < this.baseX - this.patrolRange) this.moveDir = 1;
 
         const throwRate = Math.max(30, 80 - this.phase * 20);
-        this.throwTimer++;
+        this.throwTimer += dt;
         if (this.throwTimer >= throwRate) {
             this.throwTimer = 0;
             const dir = player.x < this.x ? -1 : 1;
@@ -1419,6 +1427,9 @@ function initLevel(lvlIdx) {
     gameState.comboTimer = 0;
     gameState.chaiBoostTimer = 0;
     gameState.bossDefeated = false;
+    gameState.lastFrameTime = 0;
+    gameState.deltaTime = 1;
+    gameState.cleanupAccum = 0;
     VFX.particles = [];
     player = new Player();
     entities = [];
@@ -1716,7 +1727,7 @@ function updateHUD() {
     }
 
     if (gameState.comboTimer > 0) {
-        gameState.comboTimer--;
+        gameState.comboTimer -= gameState.deltaTime;
         if (gameState.comboTimer <= 0) gameState.comboCount = 0;
     }
 
@@ -1765,9 +1776,25 @@ function showFinalScreen() {
     document.getElementById('finalTotalScore').innerText = gameState.score;
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
     if (gameState.screen !== 'PLAY') return;
+
+    if (gameState.lastFrameTime === 0) gameState.lastFrameTime = timestamp;
+    const rawDelta = (timestamp - gameState.lastFrameTime) / (1000 / 60);
+    gameState.deltaTime = Math.min(rawDelta, 3);
+    gameState.lastFrameTime = timestamp;
+
+    if (gameState.deltaTime <= 0) gameState.deltaTime = 1;
+
     gameState.frameCount++;
+
+    gameState.cleanupAccum += gameState.deltaTime;
+    if (gameState.cleanupAccum >= 60) {
+        gameState.cleanupAccum = 0;
+        entities = entities.filter(e => e.active);
+        gameState.projectiles = gameState.projectiles.filter(p => p.active);
+        gameState.pigeons = gameState.pigeons.filter(p => p.y > -200);
+    }
 
     const shake = VFX.getShakeOffset();
     ctx.save();

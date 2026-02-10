@@ -40,12 +40,16 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 - Character animation uses _limbBlend for smooth transitions
 - Boss class (BossMonkey) has 3 phases with increasing difficulty
 - Score multiplier applies to all collected points
+- Delta-time normalization ensures consistent game speed regardless of frame rate
+- Inactive entities/projectiles/pigeons are periodically purged from arrays (every 60 frames)
 
 ## How It Runs
 - Served via Python's built-in HTTP server on port 5000
 - Deployed as a static site with the root directory as public
 
 ## Recent Changes
+- 2026-02-10: Fixed elements disappearing in Level 4 by adding periodic array cleanup for inactive entities/projectiles
+- 2026-02-10: Added delta-time normalization to all game physics for consistent speed
 - 2026-02-10: Fixed transparency/rendering bugs with proper canvas save/restore
 - 2026-02-10: Redesigned characters as simple cute chibi style
 - 2026-02-10: Converted double jump to collectible power-up (feather)
