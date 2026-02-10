@@ -61,7 +61,7 @@
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Space</kbd> Jump</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">↓</kbd> Slide</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Shift</kbd> Dash</span>
-                            <span class="col-span-2 text-center text-yellow-500 mt-1">Double-tap jump in air for double jump!</span>
+                            <span class="col-span-2 text-center text-yellow-500 mt-1">Collect 🪶 for double jump power!</span>
                         </div>
 
                         <button id="startBtn"
@@ -157,8 +157,8 @@
                 </div>
 
                 <div id="abilityBar" class="ability-indicator hidden">
-                    <div class="ability-icon bg-blue-900/70" title="Double Jump">
-                        <span>⬆️</span>
+                    <div id="doubleJumpIcon" class="ability-icon bg-blue-900/70 opacity-30" title="Double Jump">
+                        <span>🪶</span>
                         <span class="key-hint">2x</span>
                     </div>
                     <div class="ability-icon bg-green-900/70" title="Slide">
@@ -170,6 +170,9 @@
                         <div id="dashCooldownOverlay" class="cooldown-overlay" style="height: 0%"></div>
                         <span class="key-hint">Shift</span>
                     </div>
+                </div>
+                <div id="scoreMultBar" class="hidden absolute top-16 right-3 bg-yellow-500/80 text-black font-bold px-3 py-1 rounded-full text-sm animate-pulse">
+                    2x SCORE!
                 </div>
             </div>
 

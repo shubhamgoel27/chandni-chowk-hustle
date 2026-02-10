@@ -24,10 +24,10 @@ class Particle {
         const drawX = this.x - cameraX;
         if (drawX < -50 || drawX > 1330) return;
 
+        ctx.save();
         ctx.globalAlpha = Math.max(0, this.life);
 
         if (this.type === 'star') {
-            ctx.save();
             ctx.translate(drawX, this.y);
             ctx.rotate(Date.now() / 200);
             ctx.fillStyle = this.color;
@@ -40,7 +40,6 @@ class Particle {
                 ctx.fill();
                 ctx.rotate(Math.PI * 2 / 5);
             }
-            ctx.restore();
         } else if (this.type === 'ring') {
             ctx.strokeStyle = this.color;
             ctx.lineWidth = 2;
@@ -53,7 +52,7 @@ class Particle {
             ctx.arc(drawX, this.y, this.size * this.life, 0, Math.PI * 2);
             ctx.fill();
         }
-        ctx.globalAlpha = 1.0;
+        ctx.restore();
     }
 }
 
@@ -85,10 +84,11 @@ const VFX = {
 
     drawFlash(ctx) {
         if (this.flashAlpha > 0) {
+            ctx.save();
             ctx.globalAlpha = this.flashAlpha;
             ctx.fillStyle = this.flashColor;
             ctx.fillRect(0, 0, 1280, 720);
-            ctx.globalAlpha = 1;
+            ctx.restore();
         }
     },
 
