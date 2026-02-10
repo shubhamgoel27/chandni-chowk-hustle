@@ -433,7 +433,7 @@ class Player {
         } else {
             if (keys.right) { this.vx = this.speed * speedMult; this.facingRight = true; this.animTimer++; }
             else if (keys.left) { this.vx = -this.speed * speedMult; this.facingRight = false; this.animTimer++; }
-            else { this.vx *= 0.8; if (Math.abs(this.vx) < 0.5) this.vx = 0; this.animTimer = 0; }
+            else { this.vx *= 0.8; if (Math.abs(this.vx) < 1) this.vx = 0; }
         }
 
         if (this.dashCooldown > 0) this.dashCooldown--;
@@ -488,9 +488,9 @@ class Player {
             this.canDoubleJump = true;
         }
 
-        if (this.scaleY < 1) this.scaleY += 0.05;
-        if (this.scaleY > 1) this.scaleY = 1;
-        if (!this.grounded && !this.isDashing) this.scaleY = 1.1;
+        this.scaleY += (1 - this.scaleY) * 0.15;
+        if (Math.abs(this.scaleY - 1) < 0.01) this.scaleY = 1;
+        if (!this.grounded && !this.isDashing) this.scaleY = 1.05;
 
         if (this.grounded && Math.abs(this.vx) > 3) {
             this.dustTimer++;
@@ -550,205 +550,427 @@ class Player {
 
         const isRaju = (gameState.character === 'raju');
         const skinColor = '#C68642';
-        const hairColor = isRaju ? '#1A1A2E' : '#1A1A2E';
-        const shirtColor = isRaju ? '#FF6F00' : '#E91E63';
-        const pantsColor = isRaju ? '#1565C0' : '#7B1FA2';
-        const shoeColor = '#5D4037';
+        const hairColor = '#1A1A2E';
 
-        const walking = (Math.abs(this.vx) > 1 && this.grounded);
-        const running = (Math.abs(this.vx) > 5 && this.grounded);
+        const speed = Math.abs(this.vx);
+        const walking = (speed > 2 && this.grounded);
+        const running = (speed > 5 && this.grounded);
         const animSpeed = running ? 0.5 : 0.3;
-        const limbSwing = walking ? Math.sin(this.animTimer * animSpeed) : 0;
-        const armSwing = walking ? Math.sin(this.animTimer * animSpeed) * 0.8 : 0;
+        const targetSwing = walking ? Math.sin(this.animTimer * animSpeed) : 0;
+        this._limbBlend = this._limbBlend || 0;
+        this._limbBlend += (targetSwing - this._limbBlend) * 0.3;
+        const limbSwing = this._limbBlend;
+        const armSwing = limbSwing * 0.8;
         const bodyBob = walking ? Math.abs(Math.sin(this.animTimer * animSpeed)) * 3 : 0;
         const jumpPose = !this.grounded;
 
         const bY = -bodyBob;
 
-        ctx.fillStyle = pantsColor;
-        if (jumpPose) {
-            ctx.save();
-            ctx.translate(-8, bY - 18);
-            ctx.rotate(-0.4);
-            ctx.fillRect(-5, 0, 10, 30);
-            ctx.restore();
-            ctx.save();
-            ctx.translate(8, bY - 18);
-            ctx.rotate(0.4);
-            ctx.fillRect(-5, 0, 10, 30);
-            ctx.restore();
-        } else {
-            ctx.save();
-            ctx.translate(-8, bY - 18);
-            ctx.rotate(limbSwing * 0.6);
-            ctx.fillRect(-5, 0, 10, 28);
-            ctx.fillStyle = shoeColor;
-            ctx.fillRect(-6, 25, 12, 7);
-            ctx.beginPath();
-            ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-            ctx.save();
-            ctx.translate(8, bY - 18);
-            ctx.rotate(-limbSwing * 0.6);
-            ctx.fillStyle = pantsColor;
-            ctx.fillRect(-5, 0, 10, 28);
-            ctx.fillStyle = shoeColor;
-            ctx.fillRect(-6, 25, 12, 7);
-            ctx.beginPath();
-            ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-        }
-
-        if (jumpPose) {
-            ctx.fillStyle = shoeColor;
-            ctx.save();
-            ctx.translate(-12, bY + 8);
-            ctx.rotate(-0.3);
-            ctx.fillRect(-4, 0, 10, 7);
-            ctx.restore();
-            ctx.save();
-            ctx.translate(12, bY + 8);
-            ctx.rotate(0.3);
-            ctx.fillRect(-4, 0, 10, 7);
-            ctx.restore();
-        }
-
-        ctx.fillStyle = shirtColor;
-        const torsoY = bY - 55;
-        ctx.beginPath();
-        ctx.moveTo(-16, torsoY + 38);
-        ctx.lineTo(-14, torsoY);
-        ctx.quadraticCurveTo(0, torsoY - 5, 14, torsoY);
-        ctx.lineTo(16, torsoY + 38);
-        ctx.closePath();
-        ctx.fill();
-
         if (isRaju) {
-            ctx.fillStyle = '#FFB300';
-            ctx.fillRect(-12, torsoY + 2, 24, 4);
+            ctx.fillStyle = '#1565C0';
+            if (jumpPose) {
+                ctx.save();
+                ctx.translate(-8, bY - 18);
+                ctx.rotate(-0.4);
+                ctx.fillRect(-5, 0, 10, 30);
+                ctx.restore();
+                ctx.save();
+                ctx.translate(8, bY - 18);
+                ctx.rotate(0.4);
+                ctx.fillRect(-5, 0, 10, 30);
+                ctx.restore();
+            } else {
+                ctx.save();
+                ctx.translate(-8, bY - 18);
+                ctx.rotate(limbSwing * 0.6);
+                ctx.fillRect(-5, 0, 10, 28);
+                ctx.fillStyle = '#8D6E63';
+                ctx.fillRect(-6, 25, 12, 7);
+                ctx.beginPath();
+                ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(8, bY - 18);
+                ctx.rotate(-limbSwing * 0.6);
+                ctx.fillStyle = '#1565C0';
+                ctx.fillRect(-5, 0, 10, 28);
+                ctx.fillStyle = '#8D6E63';
+                ctx.fillRect(-6, 25, 12, 7);
+                ctx.beginPath();
+                ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            if (jumpPose) {
+                ctx.fillStyle = '#8D6E63';
+                ctx.save();
+                ctx.translate(-12, bY + 8);
+                ctx.rotate(-0.3);
+                ctx.fillRect(-4, 0, 10, 7);
+                ctx.restore();
+                ctx.save();
+                ctx.translate(12, bY + 8);
+                ctx.rotate(0.3);
+                ctx.fillRect(-4, 0, 10, 7);
+                ctx.restore();
+            }
+
+            const torsoY = bY - 55;
+            ctx.fillStyle = '#FF6F00';
             ctx.beginPath();
-            ctx.moveTo(0, torsoY + 2);
-            ctx.lineTo(3, torsoY - 2);
-            ctx.lineTo(-3, torsoY - 2);
+            ctx.moveTo(-16, torsoY + 38);
+            ctx.lineTo(-14, torsoY);
+            ctx.quadraticCurveTo(0, torsoY - 5, 14, torsoY);
+            ctx.lineTo(16, torsoY + 38);
             ctx.closePath();
             ctx.fill();
-        } else {
+
+            ctx.fillStyle = '#FFB300';
+            ctx.beginPath();
+            ctx.moveTo(-8, torsoY);
+            ctx.lineTo(0, torsoY + 20);
+            ctx.lineTo(8, torsoY);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#FFC107';
+            ctx.fillRect(-12, torsoY + 34, 24, 4);
             ctx.fillStyle = '#FFD54F';
             ctx.beginPath();
-            ctx.arc(-6, torsoY + 15, 3, 0, Math.PI * 2);
-            ctx.arc(6, torsoY + 15, 3, 0, Math.PI * 2);
+            ctx.arc(0, torsoY + 36, 3, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#F48FB1';
-            ctx.fillRect(-14, torsoY + 35, 28, 3);
-        }
 
-        ctx.fillStyle = skinColor;
-        if (jumpPose) {
-            ctx.save();
-            ctx.translate(-16, torsoY + 5);
-            ctx.rotate(-1.2);
-            ctx.fillRect(-4, 0, 8, 25);
+            ctx.fillStyle = skinColor;
+            if (jumpPose) {
+                ctx.save();
+                ctx.translate(-16, torsoY + 5);
+                ctx.rotate(-1.2);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(16, torsoY + 5);
+                ctx.rotate(1.2);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            } else {
+                ctx.save();
+                ctx.translate(-16, torsoY + 5);
+                ctx.rotate(armSwing * 0.7);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(16, torsoY + 5);
+                ctx.rotate(-armSwing * 0.7);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            const headY = torsoY - 22;
+            ctx.fillStyle = skinColor;
             ctx.beginPath();
-            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.ellipse(0, headY, 16, 18, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.restore();
-            ctx.save();
-            ctx.translate(16, torsoY + 5);
-            ctx.rotate(1.2);
-            ctx.fillRect(-4, 0, 8, 25);
+
+            ctx.fillStyle = '#1A1A1A';
+            const eyeY = headY + 2;
             ctx.beginPath();
-            ctx.arc(0, 27, 6, 0, Math.PI * 2);
+            ctx.ellipse(-6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
+            ctx.ellipse(6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.restore();
-        } else {
-            ctx.save();
-            ctx.translate(-16, torsoY + 5);
-            ctx.rotate(armSwing * 0.7);
-            ctx.fillRect(-4, 0, 8, 25);
-            ctx.beginPath();
-            ctx.arc(0, 27, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-            ctx.save();
-            ctx.translate(16, torsoY + 5);
-            ctx.rotate(-armSwing * 0.7);
-            ctx.fillRect(-4, 0, 8, 25);
-            ctx.beginPath();
-            ctx.arc(0, 27, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-        }
-
-        const headY = torsoY - 22;
-        ctx.fillStyle = skinColor;
-        ctx.beginPath();
-        ctx.ellipse(0, headY, 16, 18, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#1A1A1A';
-        const eyeY = headY + 2;
-        ctx.beginPath();
-        ctx.ellipse(-6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
-        ctx.ellipse(6, eyeY, 3, 3.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.ellipse(-5, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
-        ctx.ellipse(7, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#E65100';
-        ctx.beginPath();
-        ctx.arc(0, headY + 8, 2.5, 0, Math.PI, false);
-        ctx.fill();
-
-        if (walking || running) {
             ctx.fillStyle = '#FFFFFF';
             ctx.beginPath();
-            ctx.arc(2, headY + 14, running ? 5 : 3.5, 0, Math.PI, false);
+            ctx.ellipse(-5, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
+            ctx.ellipse(7, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
             ctx.fill();
-        }
 
-        ctx.fillStyle = hairColor;
-        if (isRaju) {
+            ctx.fillStyle = '#E65100';
+            ctx.beginPath();
+            ctx.arc(0, headY + 8, 2.5, 0, Math.PI, false);
+            ctx.fill();
+
+            if (walking || running) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(2, headY + 14, running ? 5 : 3.5, 0, Math.PI, false);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = hairColor;
             ctx.beginPath();
             ctx.ellipse(0, headY - 12, 17, 10, 0, Math.PI, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(-12, headY - 5, 5, 10, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(-13, headY - 3, 5, 12, 0.3, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(12, headY - 5, 5, 10, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(13, headY - 3, 5, 12, -0.3, 0, Math.PI * 2);
             ctx.fill();
-            const spikeHeights = [3, 1, 4, 2, 3];
-            for (let spike = 0; spike < 5; spike++) {
-                const sx = -10 + spike * 5;
+
+            ctx.fillStyle = '#E53935';
+            ctx.beginPath();
+            ctx.ellipse(0, headY - 10, 3, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFEB3B';
+            ctx.beginPath();
+            ctx.arc(0, headY - 10, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+        } else {
+
+            ctx.fillStyle = '#7B1FA2';
+            if (jumpPose) {
+                ctx.save();
+                ctx.translate(-8, bY - 18);
+                ctx.rotate(-0.4);
+                ctx.fillRect(-5, 0, 10, 30);
+                ctx.restore();
+                ctx.save();
+                ctx.translate(8, bY - 18);
+                ctx.rotate(0.4);
+                ctx.fillRect(-5, 0, 10, 30);
+                ctx.restore();
+            } else {
+                ctx.save();
+                ctx.translate(-8, bY - 18);
+                ctx.rotate(limbSwing * 0.6);
+                ctx.fillRect(-5, 0, 10, 28);
+                ctx.fillStyle = '#8D6E63';
+                ctx.fillRect(-6, 25, 12, 7);
                 ctx.beginPath();
-                ctx.moveTo(sx - 3, headY - 18);
-                ctx.lineTo(sx, headY - 26 - spikeHeights[spike]);
-                ctx.lineTo(sx + 3, headY - 18);
+                ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(8, bY - 18);
+                ctx.rotate(-limbSwing * 0.6);
+                ctx.fillStyle = '#7B1FA2';
+                ctx.fillRect(-5, 0, 10, 28);
+                ctx.fillStyle = '#8D6E63';
+                ctx.fillRect(-6, 25, 12, 7);
+                ctx.beginPath();
+                ctx.ellipse(1, 32, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            if (jumpPose) {
+                ctx.fillStyle = '#8D6E63';
+                ctx.save();
+                ctx.translate(-12, bY + 8);
+                ctx.rotate(-0.3);
+                ctx.fillRect(-4, 0, 10, 7);
+                ctx.restore();
+                ctx.save();
+                ctx.translate(12, bY + 8);
+                ctx.rotate(0.3);
+                ctx.fillRect(-4, 0, 10, 7);
+                ctx.restore();
+            }
+
+            const torsoY = bY - 55;
+
+            ctx.fillStyle = '#E91E63';
+            ctx.beginPath();
+            ctx.moveTo(-16, torsoY + 38);
+            ctx.lineTo(-14, torsoY);
+            ctx.quadraticCurveTo(0, torsoY - 5, 14, torsoY);
+            ctx.lineTo(16, torsoY + 38);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath();
+            ctx.moveTo(-6, torsoY + 5);
+            ctx.lineTo(0, torsoY + 18);
+            ctx.lineTo(6, torsoY + 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#FFC107';
+            ctx.beginPath();
+            ctx.arc(0, torsoY + 12, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FF80AB';
+            ctx.fillRect(-14, torsoY + 34, 28, 4);
+            ctx.save();
+            ctx.strokeStyle = '#F48FB1';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-14, torsoY + 34);
+            ctx.quadraticCurveTo(-10, torsoY + 32, -6, torsoY + 34);
+            ctx.quadraticCurveTo(-2, torsoY + 32, 2, torsoY + 34);
+            ctx.quadraticCurveTo(6, torsoY + 32, 10, torsoY + 34);
+            ctx.quadraticCurveTo(14, torsoY + 32, 14, torsoY + 34);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.strokeStyle = '#E91E63';
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(12, torsoY + 2);
+            const dupatAngle = walking ? Math.sin(this.animTimer * 0.15) * 0.3 : 0.1;
+            ctx.quadraticCurveTo(25, torsoY + 15 + dupatAngle * 10, 20, torsoY + 40);
+            ctx.stroke();
+            ctx.strokeStyle = '#FF80AB';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(13, torsoY + 2);
+            ctx.quadraticCurveTo(26, torsoY + 15 + dupatAngle * 10, 21, torsoY + 40);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.fillStyle = skinColor;
+            if (jumpPose) {
+                ctx.save();
+                ctx.translate(-16, torsoY + 5);
+                ctx.rotate(-1.2);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(16, torsoY + 5);
+                ctx.rotate(1.2);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            } else {
+                ctx.save();
+                ctx.translate(-16, torsoY + 5);
+                ctx.rotate(armSwing * 0.7);
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FF5722';
+                ctx.beginPath();
+                ctx.arc(2, 22, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(16, torsoY + 5);
+                ctx.rotate(-armSwing * 0.7);
+                ctx.fillStyle = skinColor;
+                ctx.fillRect(-4, 0, 8, 25);
+                ctx.beginPath();
+                ctx.arc(0, 27, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FF5722';
+                ctx.beginPath();
+                ctx.arc(2, 22, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            const headY = torsoY - 22;
+            ctx.fillStyle = skinColor;
+            ctx.beginPath();
+            ctx.ellipse(0, headY, 16, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#E53935';
+            ctx.beginPath();
+            ctx.arc(0, headY - 4, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FF1744';
+            ctx.beginPath();
+            ctx.arc(0, headY - 4, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#1A1A1A';
+            const eyeY = headY + 2;
+            ctx.beginPath();
+            ctx.ellipse(-6, eyeY, 3, 4, 0, 0, Math.PI * 2);
+            ctx.ellipse(6, eyeY, 3, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.ellipse(-5, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
+            ctx.ellipse(7, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.save();
+            ctx.strokeStyle = '#1A1A1A';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(-9, eyeY - 3);
+            ctx.quadraticCurveTo(-6, eyeY - 5, -3, eyeY - 3);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(3, eyeY - 3);
+            ctx.quadraticCurveTo(6, eyeY - 5, 9, eyeY - 3);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.fillStyle = '#E65100';
+            ctx.beginPath();
+            ctx.arc(0, headY + 8, 2, 0, Math.PI, false);
+            ctx.fill();
+
+            if (walking || running) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(2, headY + 14, running ? 5 : 3.5, 0, Math.PI, false);
                 ctx.fill();
             }
-        } else {
+
+            ctx.fillStyle = hairColor;
             ctx.beginPath();
             ctx.ellipse(0, headY - 10, 18, 12, 0, Math.PI, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(-14, headY, 5, 15, 0.2, 0, Math.PI * 2);
+            ctx.ellipse(-14, headY + 2, 5, 20, 0.15, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(14, headY, 5, 15, -0.2, 0, Math.PI * 2);
+            ctx.ellipse(14, headY + 2, 5, 20, -0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(0, headY + 18, 8, 4, 0, 0, Math.PI);
             ctx.fill();
 
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(-16, headY + 8, 4, 0, Math.PI * 2);
+            ctx.fill();
             ctx.fillStyle = '#FF5722';
             ctx.beginPath();
-            ctx.arc(14, headY - 8, 5, 0, Math.PI * 2);
+            ctx.arc(-16, headY + 8, 2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#FFD54F';
+            ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(14, headY - 8, 3, 0, Math.PI * 2);
+            ctx.arc(-16, headY + 14, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(16, headY + 8, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FF5722';
+            ctx.beginPath();
+            ctx.arc(16, headY + 8, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(16, headY + 14, 2, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -758,7 +980,7 @@ class Player {
             for (let i = 0; i < 4; i++) {
                 const angle = sparkleT + i * 1.57;
                 const sx = Math.cos(angle) * 30;
-                const sy = headY - 30 + Math.sin(angle) * 10;
+                const sy = -85 + Math.sin(angle) * 10;
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('✨', sx, sy);
@@ -766,10 +988,9 @@ class Player {
         }
 
         ctx.restore();
-
-        if (this.isDashing) {
-            ctx.shadowBlur = 0;
-        }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
     }
 }
 
