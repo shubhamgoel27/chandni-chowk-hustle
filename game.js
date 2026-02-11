@@ -1170,10 +1170,12 @@ function drawBackground() {
     ctx.lineTo(0, canvas.height);
     ctx.fill();
 
-    gameState.kites.forEach(k => k.draw());
+    gameState.kites.forEach(k => { k.draw(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)'; });
 
     drawStringLights(30);
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
     if (gameState.level >= 3) drawStringLights(60);
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
     ctx.fillStyle = lvl.groundColor;
     ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
@@ -1188,7 +1190,7 @@ function drawBackground() {
         ctx.fillRect(bx - (brickP % 40), GROUND_Y + 15 + row * 5, 38, 18);
     }
 
-    gameState.rangolis.forEach(r => r.draw());
+    gameState.rangolis.forEach(r => { r.draw(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)'; });
 }
 
 class BossMonkey {
@@ -1831,32 +1833,38 @@ function gameLoop(timestamp) {
         gameState.pigeons = gameState.pigeons.filter(p => p.y > -200);
     }
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'rgba(0,0,0,0)';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const shake = VFX.getShakeOffset();
     ctx.save();
     ctx.translate(shake.x, shake.y);
 
-    ctx.clearRect(-10, -10, canvas.width + 20, canvas.height + 20);
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-
     drawBackground();
-
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
     gameState.puddles.forEach(p => p.draw());
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
+
     gameState.platforms.forEach(p => p.draw());
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
+
     gameState.pigeons.forEach(p => { p.update(); p.draw(); });
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
     player.update();
     player.draw();
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-
-    entities.forEach(ent => { ent.update(); ent.draw(); });
-    if (boss) { boss.update(); boss.draw(); }
-    gameState.projectiles.forEach(p => { p.update(); p.draw(); });
+    entities.forEach(ent => {
+        ent.update(); ent.draw();
+        ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
+    });
+    if (boss) { boss.update(); boss.draw(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)'; }
+    gameState.projectiles.forEach(p => { p.update(); p.draw(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; });
 
     if (gameState.level === 5 && gameState.bossWarningX > 0 && !gameState.bossDefeated) {
         const warningDrawX = gameState.bossWarningX - gameState.cameraX;
@@ -1904,11 +1912,14 @@ function gameLoop(timestamp) {
         }
     }
 
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
     VFX.update();
     VFX.draw(ctx, gameState.cameraX);
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
     gameState.scorePopups = gameState.scorePopups.filter(p => p.life > 0);
     gameState.scorePopups.forEach(p => { p.update(); p.draw(); });
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
 
     checkCollisions();
     updateHUD();

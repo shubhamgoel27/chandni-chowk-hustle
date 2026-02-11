@@ -81,7 +81,11 @@ const VFX = {
     },
 
     draw(ctx, cameraX) {
-        this.particles.forEach(p => p.draw(ctx, cameraX));
+        this.particles.forEach(p => {
+            p.draw(ctx, cameraX);
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+        });
     },
 
     drawFlash(ctx) {
