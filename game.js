@@ -1779,12 +1779,16 @@ function showFinalScreen() {
 function gameLoop(timestamp) {
     if (gameState.screen !== 'PLAY') return;
 
-    if (gameState.lastFrameTime === 0) gameState.lastFrameTime = timestamp;
-    const rawDelta = (timestamp - gameState.lastFrameTime) / (1000 / 60);
-    gameState.deltaTime = Math.min(rawDelta, 3);
-    gameState.lastFrameTime = timestamp;
+    if (!timestamp || gameState.lastFrameTime === 0) {
+        gameState.lastFrameTime = timestamp || performance.now();
+        gameState.deltaTime = 1;
+    } else {
+        const rawDelta = (timestamp - gameState.lastFrameTime) / (1000 / 60);
+        gameState.deltaTime = Math.min(rawDelta, 3);
+        gameState.lastFrameTime = timestamp;
+    }
 
-    if (gameState.deltaTime <= 0) gameState.deltaTime = 1;
+    if (gameState.deltaTime <= 0 || isNaN(gameState.deltaTime)) gameState.deltaTime = 1;
 
     gameState.frameCount++;
 
@@ -1887,7 +1891,7 @@ function startLevel(lvlIdx) {
     document.getElementById('gameHUD').classList.remove('hidden');
     document.getElementById('abilityBar').classList.remove('hidden');
     AudioManager.startMusic();
-    gameLoop();
+    requestAnimationFrame(gameLoop);
 }
 
 function handleNextLevelClick() {
