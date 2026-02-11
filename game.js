@@ -67,9 +67,12 @@ let gameState = {
     scorePopups: [],
     lastFrameTime: 0,
     deltaTime: 1,
+    smoothDelta: 1,
     cleanupAccum: 0,
     frameCount: 0,
-    bossDefeated: false
+    bossDefeated: false,
+    bossWarningX: 0,
+    bossWarningShown: false
 };
 
 window.selectChar = function (char) {
@@ -263,6 +266,10 @@ class Platform {
         let drawX = this.x - gameState.cameraX;
         if (drawX < -300 || drawX > canvas.width + 300) return;
 
+        ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+
         ctx.fillStyle = '#CD853F';
         ctx.fillRect(drawX, this.y, this.w, this.h);
         ctx.fillStyle = '#3E2723';
@@ -346,6 +353,7 @@ class Platform {
             ctx.arc(mx, my, 5, 0, Math.PI * 2);
             ctx.fill();
         }
+        ctx.restore();
     }
 }
 
@@ -561,6 +569,8 @@ class Player {
     draw() {
         let drawX = this.x - gameState.cameraX;
         ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
 
         ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.beginPath();
@@ -945,6 +955,8 @@ class Entity {
         if (drawX < -150 || drawX > canvas.width + 150) return;
 
         ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
         ctx.translate(drawX + 40, this.y + 70);
 
         if (this.squashed) {
@@ -1271,6 +1283,8 @@ class BossMonkey {
         if (drawX < -200 || drawX > canvas.width + 200) return;
 
         ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
         ctx.translate(drawX + 80, this.y + this.h);
 
         if (this.shakeTimer > 0) {
@@ -1427,8 +1441,11 @@ function initLevel(lvlIdx) {
     gameState.comboTimer = 0;
     gameState.chaiBoostTimer = 0;
     gameState.bossDefeated = false;
+    gameState.bossWarningX = 0;
+    gameState.bossWarningShown = false;
     gameState.lastFrameTime = 0;
     gameState.deltaTime = 1;
+    gameState.smoothDelta = 1;
     gameState.cleanupAccum = 0;
     VFX.particles = [];
     player = new Player();
@@ -1519,13 +1536,24 @@ function initLevel(lvlIdx) {
 
     if (gameState.level === 5) {
         const bossX = gameState.gameWidth - 1200;
+
+        const clearStart = bossX - 800;
+        entities = entities.filter(e => e.x < clearStart);
+        gameState.platforms = gameState.platforms.filter(p => p.x < clearStart);
+        gameState.puddles = gameState.puddles.filter(p => p.x < clearStart);
+
+        entities.push(new Entity(clearStart + 100, GROUND_Y - 80, SPRITES.coconut, false, 'coconut'));
+        entities.push(new Entity(clearStart + 250, GROUND_Y - 80, SPRITES.chai, false, 'chai'));
+        entities.push(new Entity(clearStart + 400, GROUND_Y - 80, SPRITES.tulsi, false, 'tulsi'));
+        entities.push(new Entity(clearStart + 550, GROUND_Y - 80, SPRITES.feather, false, 'feather'));
+
+        gameState.bossWarningX = clearStart + 300;
+
         boss = new BossMonkey(bossX);
         for (let bp = 0; bp < 5; bp++) {
             const px = bossX - 200 + bp * 250;
             gameState.platforms.push(new Platform(px, Math.floor(Math.random() * 3)));
         }
-        entities.push(new Entity(bossX - 100, GROUND_Y - 80, SPRITES.coconut, false, 'coconut'));
-        entities.push(new Entity(bossX + 200, GROUND_Y - PLATFORM_H - 100, SPRITES.feather, false, 'feather'));
     }
 
     document.getElementById('targetDistDisplay').innerText = gameState.gameWidth / 10;
@@ -1781,10 +1809,13 @@ function gameLoop(timestamp) {
 
     if (!timestamp || gameState.lastFrameTime === 0) {
         gameState.lastFrameTime = timestamp || performance.now();
+        gameState.smoothDelta = 1;
         gameState.deltaTime = 1;
     } else {
         const rawDelta = (timestamp - gameState.lastFrameTime) / (1000 / 60);
-        gameState.deltaTime = Math.min(rawDelta, 3);
+        const clampedDelta = Math.min(rawDelta, 3);
+        gameState.smoothDelta += (clampedDelta - gameState.smoothDelta) * 0.2;
+        gameState.deltaTime = gameState.smoothDelta;
         gameState.lastFrameTime = timestamp;
     }
 
@@ -1805,8 +1836,14 @@ function gameLoop(timestamp) {
     ctx.translate(shake.x, shake.y);
 
     ctx.clearRect(-10, -10, canvas.width + 20, canvas.height + 20);
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
 
     drawBackground();
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
     gameState.puddles.forEach(p => p.draw());
     gameState.platforms.forEach(p => p.draw());
     gameState.pigeons.forEach(p => { p.update(); p.draw(); });
@@ -1814,9 +1851,58 @@ function gameLoop(timestamp) {
     player.update();
     player.draw();
 
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
     entities.forEach(ent => { ent.update(); ent.draw(); });
     if (boss) { boss.update(); boss.draw(); }
     gameState.projectiles.forEach(p => { p.update(); p.draw(); });
+
+    if (gameState.level === 5 && gameState.bossWarningX > 0 && !gameState.bossDefeated) {
+        const warningDrawX = gameState.bossWarningX - gameState.cameraX;
+        if (warningDrawX > -200 && warningDrawX < canvas.width + 200) {
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
+            const t = Date.now() / 500;
+            const pulse = 0.7 + Math.sin(t) * 0.3;
+
+            ctx.fillStyle = `rgba(255, 23, 68, ${pulse * 0.15})`;
+            ctx.fillRect(warningDrawX - 150, 0, 300, canvas.height);
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.beginPath();
+            ctx.roundRect(warningDrawX - 140, GROUND_Y - 280, 280, 100, 10);
+            ctx.fill();
+
+            ctx.strokeStyle = `rgba(255, 23, 68, ${pulse})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(warningDrawX - 140, GROUND_Y - 280, 280, 100, 10);
+            ctx.stroke();
+
+            ctx.fillStyle = '#FF1744';
+            ctx.font = 'bold 20px Poppins';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠ WARNING ⚠', warningDrawX, GROUND_Y - 250);
+
+            ctx.fillStyle = '#FFD740';
+            ctx.font = 'bold 16px Poppins';
+            ctx.fillText('MONKEY RAJA AHEAD!', warningDrawX, GROUND_Y - 225);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '13px Poppins';
+            ctx.fillText('Stomp his head 3 times to win', warningDrawX, GROUND_Y - 200);
+
+            ctx.restore();
+
+            if (!gameState.bossWarningShown && warningDrawX < canvas.width * 0.7) {
+                gameState.bossWarningShown = true;
+                VFX.flash('#FF1744', 0.15);
+            }
+        }
+    }
 
     VFX.update();
     VFX.draw(ctx, gameState.cameraX);

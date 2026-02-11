@@ -48,6 +48,9 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 - Deployed as a static site with the root directory as public
 
 ## Recent Changes
+- 2026-02-11: Fixed entity transparency bug with explicit globalAlpha/shadowBlur resets in all draw methods and between game loop sections
+- 2026-02-11: Added delta-time smoothing (exponential moving average) to eliminate speed jitter
+- 2026-02-11: Added boss fight preparation zone: clear area with power-ups and warning sign before Monkey Raja
 - 2026-02-10: Fixed elements disappearing in Level 4 by adding periodic array cleanup for inactive entities/projectiles
 - 2026-02-10: Added delta-time normalization to all game physics for consistent speed
 - 2026-02-10: Fixed transparency/rendering bugs with proper canvas save/restore
