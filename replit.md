@@ -37,6 +37,7 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 
 ## Technical Notes
 - All canvas drawing uses save/restore to prevent globalAlpha and shadowBlur leaks
+- **Zero shadowBlur policy**: All glow effects use manually drawn semi-transparent circles instead of ctx.shadowBlur to prevent emoji/text wash-out artifacts
 - Character animation uses _limbBlend for smooth transitions
 - Boss class (BossMonkey) has 3 phases with increasing difficulty
 - Score multiplier applies to all collected points

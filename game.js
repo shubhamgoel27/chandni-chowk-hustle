@@ -187,6 +187,9 @@ class Projectile {
         let drawX = this.x - gameState.cameraX;
         if (drawX < -50 || drawX > canvas.width + 50) return;
         ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'rgba(0,0,0,0)';
         ctx.translate(drawX + 25, this.y + 25);
         ctx.rotate(this.rot);
         ctx.font = '50px Arial';
@@ -223,6 +226,9 @@ class Pigeon {
         let drawX = this.x - gameState.cameraX;
         if (drawX < -50 || drawX > canvas.width + 50) return;
         ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'rgba(0,0,0,0)';
         ctx.translate(drawX, this.y);
         if (this.flip) ctx.scale(-1, 1);
         ctx.font = '30px Arial';
@@ -581,12 +587,17 @@ class Player {
             ctx.globalAlpha = 0.5;
         }
 
-        ctx.translate(drawX + this.w / 2, this.y + this.h);
-
         if (this.isDashing) {
-            ctx.shadowColor = '#FF9800';
-            ctx.shadowBlur = 20;
+            ctx.save();
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = '#FF9800';
+            ctx.beginPath();
+            ctx.arc(drawX + this.w / 2, this.y + this.h - 40, 35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
         }
+
+        ctx.translate(drawX + this.w / 2, this.y + this.h);
 
         if (!this.facingRight) ctx.scale(-1, 1);
 
@@ -954,39 +965,49 @@ class Entity {
         let drawX = this.x - gameState.cameraX;
         if (drawX < -150 || drawX > canvas.width + 150) return;
 
-        ctx.save();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-        ctx.translate(drawX + 40, this.y + 70);
+        const cx = drawX + 40;
+        let cy = this.y + 70;
+        let scaleX = 1, scaleY = 1, rot = 0;
 
         if (this.squashed) {
-            ctx.scale(1, 0.3);
+            scaleY = 0.3;
         } else if (this.type === SPRITES.cow) {
-            if (this.vx > 0) ctx.scale(-1, 1);
-            if (this.state === 'graze') {
-                ctx.rotate(Math.PI / 8);
-            } else {
-                ctx.rotate(Math.sin(Date.now() / 500) * 0.05);
-            }
+            if (this.vx > 0) scaleX = -1;
+            rot = this.state === 'graze' ? Math.PI / 8 : Math.sin(Date.now() / 500) * 0.05;
         } else if (this.type === SPRITES.dog) {
-            if (this.vx > 0) ctx.scale(-1, 1);
-            ctx.rotate(Math.sin(Date.now() / 200) * 0.1);
+            if (this.vx > 0) scaleX = -1;
+            rot = Math.sin(Date.now() / 200) * 0.1;
         } else if (this.type === SPRITES.monkey) {
-            if (player.x > this.x) ctx.scale(-1, 1);
-            ctx.rotate(Math.sin(Date.now() / 300) * 0.1);
+            if (player.x > this.x) scaleX = -1;
+            rot = Math.sin(Date.now() / 300) * 0.1;
         } else if (!this.isHazard) {
-            ctx.translate(0, Math.sin(Date.now() / 200) * 10);
+            cy += Math.sin(Date.now() / 200) * 10;
             const glowColors = { chai: '#FF9800', diya: '#FFD700', paan: '#00E676', tulsi: '#4CAF50', mango: '#FFC107', coconut: '#8D6E63', feather: '#FF9800' };
             if (glowColors[this.subtype]) {
-                ctx.shadowColor = glowColors[this.subtype];
-                ctx.shadowBlur = 15 + Math.sin(Date.now() / 200 + this.glowPhase) * 8;
+                ctx.save();
+                ctx.globalAlpha = 0.35 + Math.sin(Date.now() / 200 + this.glowPhase) * 0.15;
+                ctx.fillStyle = glowColors[this.subtype];
+                ctx.beginPath();
+                ctx.arc(cx, cy - 15, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
             }
         }
 
+        ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'rgba(0,0,0,0)';
+        ctx.translate(cx, cy);
+        ctx.scale(scaleX, scaleY);
+        ctx.rotate(rot);
         ctx.font = '80px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(this.type, 0, 0);
         ctx.restore();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'rgba(0,0,0,0)';
     }
 }
 
@@ -1094,9 +1115,11 @@ function drawStringLights(y) {
 
         ctx.save();
         ctx.fillStyle = colors[idx];
+        ctx.globalAlpha = brightness * 0.3;
+        ctx.beginPath();
+        ctx.arc(wx, wy + 8, 10, 0, Math.PI * 2);
+        ctx.fill();
         ctx.globalAlpha = brightness;
-        ctx.shadowColor = colors[idx];
-        ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(wx, wy + 8, 5, 0, Math.PI * 2);
         ctx.fill();
@@ -1116,9 +1139,11 @@ function drawBackground() {
     const sunX = canvas.width - 200;
     const sunY = 100;
     ctx.save();
+    ctx.fillStyle = 'rgba(255, 167, 38, 0.15)';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 100, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#FFA726';
-    ctx.shadowColor = '#FF9800';
-    ctx.shadowBlur = 40;
     ctx.beginPath();
     ctx.arc(sunX, sunY, 70, 0, Math.PI * 2);
     ctx.fill();
@@ -1928,10 +1953,10 @@ function gameLoop(timestamp) {
     if (finishX < canvas.width + 200) {
         ctx.save();
         const t = Date.now() / 500;
+        ctx.globalAlpha = 0.3 + Math.sin(t) * 0.15;
         ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(finishX, 0, 12, canvas.height);
-        ctx.shadowColor = '#4CAF50';
-        ctx.shadowBlur = 20 + Math.sin(t) * 10;
+        ctx.fillRect(finishX - 10, 0, 32, canvas.height);
+        ctx.globalAlpha = 1;
         ctx.fillRect(finishX, 0, 12, canvas.height);
         ctx.restore();
 
