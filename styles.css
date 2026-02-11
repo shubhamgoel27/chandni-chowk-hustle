@@ -13,6 +13,13 @@ body {
     align-items: center;
 }
 
+#canvasWrapper {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #gameCanvas {
     aspect-ratio: 16/9;
     height: 100%;
@@ -169,6 +176,12 @@ body {
         flex-direction: column;
     }
 
+    #canvasWrapper {
+        width: 100%;
+        height: auto;
+        max-height: 55vh;
+    }
+
     #gameCanvas {
         width: 100%;
         height: auto;
@@ -176,13 +189,6 @@ body {
         border-width: 2px;
         border-radius: 4px;
         box-shadow: none;
-    }
-
-    #overlayContainer {
-        width: 100% !important;
-        height: auto !important;
-        aspect-ratio: 16/9 !important;
-        max-height: 55vh;
     }
 
     .overlay {
