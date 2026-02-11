@@ -38,6 +38,7 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 ## Technical Notes
 - All canvas drawing uses save/restore to prevent globalAlpha and shadowBlur leaks
 - **Zero shadowBlur policy**: All glow effects use manually drawn semi-transparent circles instead of ctx.shadowBlur to prevent emoji/text wash-out artifacts
+- **Emoji rendering**: All game entity emojis are pre-rendered to offscreen canvases (emojiCache) and drawn via drawImage() instead of fillText(). This prevents browser compositing issues that cause emojis to appear transparent. Uses getEmojiImage(emoji, size) and drawEmoji() helper functions.
 - Character animation uses _limbBlend for smooth transitions
 - Boss class (BossMonkey) has 3 phases with increasing difficulty
 - Score multiplier applies to all collected points
@@ -49,6 +50,7 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 - Deployed as a static site with the root directory as public
 
 ## Recent Changes
+- 2026-02-11: Converted all emoji rendering from fillText() to pre-rendered offscreen canvas drawImage() to fix persistent transparency bug
 - 2026-02-11: Fixed entity transparency bug with explicit globalAlpha/shadowBlur resets in all draw methods and between game loop sections
 - 2026-02-11: Added delta-time smoothing (exponential moving average) to eliminate speed jitter
 - 2026-02-11: Added boss fight preparation zone: clear area with power-ups and warning sign before Monkey Raja

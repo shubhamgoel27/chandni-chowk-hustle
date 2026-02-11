@@ -45,6 +45,37 @@ const SPRITES = {
     feather: '🪶'
 };
 
+const emojiCache = {};
+function getEmojiImage(emoji, size) {
+    const key = emoji + '_' + size;
+    if (emojiCache[key]) return emojiCache[key];
+    const padding = Math.ceil(size * 0.3);
+    const canvasSize = size + padding * 2;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = canvasSize;
+    offscreen.height = canvasSize;
+    const offCtx = offscreen.getContext('2d');
+    offCtx.clearRect(0, 0, canvasSize, canvasSize);
+    offCtx.globalAlpha = 1;
+    offCtx.font = size + 'px Arial';
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
+    offCtx.fillText(emoji, canvasSize / 2, canvasSize / 2);
+    emojiCache[key] = { canvas: offscreen, size: canvasSize, padding: padding };
+    return emojiCache[key];
+}
+
+function drawEmoji(emoji, x, y, size, scaleX, scaleY, rot) {
+    const cached = getEmojiImage(emoji, size);
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.translate(x, y);
+    if (scaleX !== 1 || scaleY !== 1) ctx.scale(scaleX, scaleY);
+    if (rot) ctx.rotate(rot);
+    ctx.drawImage(cached.canvas, -cached.size / 2, -cached.size / 2, cached.size, cached.size);
+    ctx.restore();
+}
+
 let gameState = {
     screen: 'START',
     level: 1,
@@ -186,16 +217,7 @@ class Projectile {
         if (!this.active) return;
         let drawX = this.x - gameState.cameraX;
         if (drawX < -50 || drawX > canvas.width + 50) return;
-        ctx.save();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'rgba(0,0,0,0)';
-        ctx.translate(drawX + 25, this.y + 25);
-        ctx.rotate(this.rot);
-        ctx.font = '50px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(SPRITES.banana, 0, 0);
-        ctx.restore();
+        drawEmoji(SPRITES.banana, drawX + 25, this.y + 25, 50, 1, 1, this.rot);
     }
 }
 
@@ -225,15 +247,7 @@ class Pigeon {
         if (this.y < -50) return;
         let drawX = this.x - gameState.cameraX;
         if (drawX < -50 || drawX > canvas.width + 50) return;
-        ctx.save();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'rgba(0,0,0,0)';
-        ctx.translate(drawX, this.y);
-        if (this.flip) ctx.scale(-1, 1);
-        ctx.font = '30px Arial';
-        ctx.fillText(SPRITES.pigeon, 0, 0);
-        ctx.restore();
+        drawEmoji(SPRITES.pigeon, drawX, this.y, 30, this.flip ? -1 : 1, 1, 0);
     }
 }
 
@@ -838,24 +852,19 @@ class Player {
 
         if (gameState.chaiBoostTimer > 0) {
             const sparkleT = Date.now() / 100;
-            ctx.fillStyle = '#FFD700';
             for (let i = 0; i < 4; i++) {
                 const angle = sparkleT + i * 1.57;
                 const sx = Math.cos(angle) * 25;
                 const sy = -80 + Math.sin(angle) * 8;
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('✨', sx, sy);
+                drawEmoji('✨', sx, sy, 12, 1, 1, 0);
             }
         }
 
         if (this.hasDoubleJumpPower) {
+            const cached = getEmojiImage('🪶', 16);
             ctx.save();
             ctx.globalAlpha = 0.6 + Math.sin(Date.now() / 200) * 0.3;
-            ctx.fillStyle = '#FF9800';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('🪶', 0, headY - 22);
+            ctx.drawImage(cached.canvas, -cached.size / 2, headY - 22 - cached.size / 2, cached.size, cached.size);
             ctx.restore();
         }
 
@@ -994,20 +1003,7 @@ class Entity {
             }
         }
 
-        ctx.save();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'rgba(0,0,0,0)';
-        ctx.translate(cx, cy);
-        ctx.scale(scaleX, scaleY);
-        ctx.rotate(rot);
-        ctx.font = '80px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.type, 0, 0);
-        ctx.restore();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'rgba(0,0,0,0)';
+        drawEmoji(this.type, cx, cy, 80, scaleX, scaleY, rot);
     }
 }
 
@@ -1350,10 +1346,8 @@ class BossMonkey {
         ctx.fill();
 
         if (this.stunTimer > 0) {
-            ctx.fillStyle = '#E53935';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('😵', 0, -155);
+            const stunCached = getEmojiImage('😵', 16);
+            ctx.drawImage(stunCached.canvas, -stunCached.size / 2, -155 - stunCached.size / 2, stunCached.size, stunCached.size);
         } else if (this.phase >= 2) {
             ctx.fillStyle = '#E53935';
             ctx.beginPath();
