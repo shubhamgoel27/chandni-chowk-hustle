@@ -13,16 +13,6 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 - **Frameworks**: Tailwind CSS (CDN), vanilla JavaScript canvas game engine
 - **No backend** — purely client-side
 
-## Mobile Support
-- Responsive layout for phone screens (max-width: 768px media query)
-- Touch controls: left/right d-pad buttons + jump/slide/dash action buttons
-- Fixed at bottom of screen, semi-transparent, thumb-friendly sizing
-- Multi-touch support (hold direction while pressing jump)
-- Prevents zoom/scroll interference during gameplay
-- Landscape mode optimizations (hidden header, adjusted sizes)
-- Desktop version completely unchanged (controls hidden via CSS)
-- Canvas scales to full width on mobile with proper aspect ratio
-
 ## Key Features
 - 5 themed levels with unique sky/ground colors
 - Player abilities: slide, dash with cooldown
@@ -58,7 +48,6 @@ A browser-based platformer game set in the streets of Old Delhi. Players dodge r
 - Deployed as a static site with the root directory as public
 
 ## Recent Changes
-- 2026-02-11: Added mobile touch controls and responsive layout for phone browsers
 - 2026-02-10: Fixed elements disappearing in Level 4 by adding periodic array cleanup for inactive entities/projectiles
 - 2026-02-10: Added delta-time normalization to all game physics for consistent speed
 - 2026-02-10: Fixed transparency/rendering bugs with proper canvas save/restore
