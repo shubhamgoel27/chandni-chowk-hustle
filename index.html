@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chandni Chowk Hustle: Deluxe Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
@@ -56,12 +56,16 @@
                             </button>
                         </div>
 
-                        <div class="w-full bg-stone-800/50 rounded-lg p-3 mb-4 text-xs text-stone-400 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div class="keyboard-controls-hint w-full bg-stone-800/50 rounded-lg p-3 mb-4 text-xs text-stone-400 grid grid-cols-2 gap-x-4 gap-y-1">
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">←→</kbd> Move</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Space</kbd> Jump</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">↓</kbd> Slide</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Shift</kbd> Dash</span>
                             <span class="col-span-2 text-center text-yellow-500 mt-1">Collect 🪶 for double jump power!</span>
+                        </div>
+                        <div class="mobile-controls-hint w-full bg-stone-800/50 rounded-lg p-3 mb-4 text-xs text-stone-400 text-center" style="display:none;">
+                            <p>Use on-screen buttons to play</p>
+                            <span class="text-yellow-500 mt-1 block">Collect 🪶 for double jump power!</span>
                         </div>
 
                         <button id="startBtn"
@@ -176,19 +180,19 @@
                 </div>
             </div>
 
-            <div class="md:hidden absolute bottom-[-130px] left-0 w-full grid grid-cols-5 gap-1.5 p-2 bg-stone-900 h-28">
-                <button id="leftBtn"
-                    class="bg-stone-700 text-white rounded-lg font-bold text-2xl border-b-4 border-stone-800 active:border-b-0 active:translate-y-1">⬅️</button>
-                <button id="slideBtn"
-                    class="bg-green-700 text-white rounded-lg font-bold text-lg border-b-4 border-green-900 active:border-b-0 active:translate-y-1">SLIDE</button>
-                <button id="jumpBtn"
-                    class="bg-orange-600 text-white rounded-lg font-bold text-lg border-b-4 border-orange-800 active:border-b-0 active:translate-y-1">JUMP</button>
-                <button id="dashBtn"
-                    class="bg-purple-700 text-white rounded-lg font-bold text-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1">DASH</button>
-                <button id="rightBtn"
-                    class="bg-stone-700 text-white rounded-lg font-bold text-2xl border-b-4 border-stone-800 active:border-b-0 active:translate-y-1">➡️</button>
-            </div>
         </section>
+
+        <div id="mobileControls">
+            <div class="mobile-left-controls">
+                <button id="leftBtn" class="touch-btn touch-dpad">◀</button>
+                <button id="rightBtn" class="touch-btn touch-dpad">▶</button>
+            </div>
+            <div class="mobile-right-controls">
+                <button id="slideBtn" class="touch-btn touch-action slide-btn">SLIDE</button>
+                <button id="jumpBtn" class="touch-btn touch-action jump-btn">JUMP</button>
+                <button id="dashBtn" class="touch-btn touch-action dash-btn">DASH</button>
+            </div>
+        </div>
 
     </main>
 

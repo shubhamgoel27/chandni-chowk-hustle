@@ -118,27 +118,36 @@ window.addEventListener('keyup', handleKeyUp);
 const bindTouch = (id, key) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.addEventListener('touchstart', (e) => {
+    const activate = (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        el.classList.add('active');
         keys[key] = true;
         if (key === 'up' && gameState.screen === 'PLAY') player.jump();
         if (key === 'down' && gameState.screen === 'PLAY') player.startSlide();
         if (key === 'dash' && gameState.screen === 'PLAY') player.startDash();
-    });
-    el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
-    el.addEventListener('mousedown', () => {
-        keys[key] = true;
-        if (key === 'up' && gameState.screen === 'PLAY') player.jump();
-        if (key === 'down' && gameState.screen === 'PLAY') player.startSlide();
-        if (key === 'dash' && gameState.screen === 'PLAY') player.startDash();
-    });
-    el.addEventListener('mouseup', () => keys[key] = false);
+    };
+    const deactivate = (e) => {
+        e.preventDefault();
+        el.classList.remove('active');
+        keys[key] = false;
+    };
+    el.addEventListener('touchstart', activate, { passive: false });
+    el.addEventListener('touchend', deactivate, { passive: false });
+    el.addEventListener('touchcancel', deactivate, { passive: false });
+    el.addEventListener('mousedown', activate);
+    el.addEventListener('mouseup', deactivate);
+    el.addEventListener('mouseleave', deactivate);
 };
 bindTouch('leftBtn', 'left');
 bindTouch('rightBtn', 'right');
 bindTouch('jumpBtn', 'up');
 bindTouch('slideBtn', 'down');
 bindTouch('dashBtn', 'dash');
+
+document.addEventListener('touchmove', (e) => {
+    if (e.target.closest('#mobileControls')) e.preventDefault();
+}, { passive: false });
 
 class ScorePopup {
     constructor(x, y, text, color) {
