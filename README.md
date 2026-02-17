@@ -6,7 +6,7 @@ Welcome to the chaotic, colorful, and deliciously dangerous streets of Old Delhi
 
 ### [🎮 Play Now on chandni-chowk-bros.com](https://chandni-chowk-bros.com/)
 
-![Chandni Chowk Bros Gameplay](game_screen.png)
+![Chandni Chowk Bros Gameplay](game_screen_v2.png)
 
 ## 🎮 How to Play
 
