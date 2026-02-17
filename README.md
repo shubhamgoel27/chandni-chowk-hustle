@@ -4,8 +4,7 @@
 
 Welcome to the chaotic, colorful, and deliciously dangerous streets of Old Delhi! **Chandni Chowk Hustle** is a high-octane endless runner (well, until the Red Fort) where you dodge rickshaws, outsmart monkeys, and grab as many samosas as you can!
 
-
-### [🎮 Play on Replit](https://chandni-chowk-hustle.replit.app)
+### [🎮 Play Now on chandni-chowk-bros.com](https://chandni-chowk-bros.com/)
 
 ![Chandni Chowk Hustle Gameplay](game_screen.png)
 
@@ -21,6 +20,8 @@ Avoid the obstacles and reach the Red Fort to become the **Chandni Chowk Champio
 | **Move Left** | `Arrow Left` | Tap ⬅️ Button |
 | **Move Right** | `Arrow Right` | Tap ➡️ Button |
 | **Jump** | `Space` or `Arrow Up` | Tap **JUMP** / Tap Screen |
+| **Slide** | `Arrow Down` | Tap **SLIDE** |
+| **Dash** | `Shift` | Tap **DASH** |
 
 ## 🌟 Features
 
@@ -34,6 +35,12 @@ Avoid the obstacles and reach the Red Fort to become the **Chandni Chowk Champio
 3.  **Kinari Bazaar**: Jump on cloth stalls to stay safe.
 4.  **Rooftops**: Monkey menace! Dodge the flying bananas! 🍌
 5.  **Red Fort**: The final sprint involved. Don't stop now!
+
+### 🏆 Competition & Glory
+- **Local Leaderboard**: Your top scores are saved locally. Can you make it to the Wall of Fame?
+- **Score Aggregation**: Your score piles up as you progress through levels. Don't lose it all!
+- **Star Rating**: Rate your run (1-5 ⭐) and share your experience!
+- **Victory Screen**: defeat the Monkey King in Level 5 to see the true ending.
 
 ### 🛑 Obstacles & Enemies
 - **Rickshaws**: They don't stop for anyone. Jump over them!
