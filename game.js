@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 if (!ctx.roundRect) {
-    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
         if (typeof r === 'number') r = [r, r, r, r];
         this.beginPath();
         this.moveTo(x + r[0], y);
@@ -410,7 +410,7 @@ class Player {
         this.dashTimer = 0;
         this.dashDuration = 12;
         this.dashCooldown = 0;
-        this.dashCooldownMax = 60;
+        this.dashCooldownMax = 180; // Increased to 3s to prevent abuse
         this.dashSpeed = 25;
 
         this.invulnTimer = 0;
@@ -1220,8 +1220,8 @@ class BossMonkey {
         this.y = GROUND_Y - 200;
         this.w = 160;
         this.h = 200;
-        this.hp = 3;
-        this.maxHp = 3;
+        this.hp = 5; // Buffed from 3
+        this.maxHp = 5; // Buffed from 3
         this.phase = 0;
         this.active = true;
         this.stunTimer = 0;
@@ -1457,6 +1457,14 @@ function initLevel(lvlIdx) {
     gameState.puddles = [];
     gameState.kites = [];
     gameState.rangolis = [];
+
+    // Reset Score ONLY on first level
+    if (lvlIdx === 0) {
+        gameState.score = 0;
+        gameState.lives = 5;
+        gameState.totalDistanceTraveled = 0;
+    }
+
     gameState.scorePopups = [];
     gameState.comboCount = 0;
     gameState.comboTimer = 0;
@@ -1464,10 +1472,13 @@ function initLevel(lvlIdx) {
     gameState.bossDefeated = false;
     gameState.bossWarningX = 0;
     gameState.bossWarningShown = false;
+    gameState.bossWarningShown = false;
     gameState.lastFrameTime = 0;
     gameState.deltaTime = 1;
     gameState.smoothDelta = 1;
     gameState.cleanupAccum = 0;
+    // Player Name for Leaderboard
+    if (!gameState.playerName) gameState.playerName = "Anonymous";
     VFX.particles = [];
     player = new Player();
     entities = [];
@@ -1620,6 +1631,7 @@ function checkCollisions() {
                     AudioManager.stomp();
                     gameState.score += 75;
                     addScorePopup(ent.x + 40, ent.y, '+75 DASH!', '#FF9800');
+                    if (Math.random() < 0.2) addScorePopup(ent.x + 40, ent.y - 40, "Hatt!", "#FFF");
                     updateHUD();
                     return;
                 }
@@ -1635,6 +1647,7 @@ function checkCollisions() {
                     const comboBonus = 50 * gameState.comboCount;
                     gameState.score += comboBonus;
                     addScorePopup(ent.x + 40, ent.y, `+${comboBonus} x${gameState.comboCount}`, '#FF4081');
+                    if (Math.random() < 0.2) addScorePopup(ent.x + 40, ent.y - 40, "Waah!", "#FFF");
                     updateHUD();
                 } else if (!ent.squashed && player.invulnTimer <= 0) {
                     gameState.lives--;
@@ -1642,6 +1655,7 @@ function checkCollisions() {
                     ent.active = false;
                     VFX.createHitEffect(player.x + 35, player.y + 50);
                     AudioManager.hit();
+                    if (Math.random() < 0.2) addScorePopup(player.x + 35, player.y, "Arey!", "#FFF");
                     player.vy = -10;
                     player.vx = -15;
                     player.invulnTimer = 60;
@@ -1650,6 +1664,7 @@ function checkCollisions() {
                 }
             } else {
                 let points = 100;
+                let feedbackText = "";
                 if (ent.subtype === 'chai') {
                     gameState.chaiBoostTimer = 180;
                     AudioManager.powerUp();
@@ -1657,6 +1672,7 @@ function checkCollisions() {
                     VFX.flash('#FF9800', 0.15);
                     points = 200;
                     addScorePopup(ent.x + 40, ent.y, '+200 CHAI BOOST!', '#FF9800');
+                    feedbackText = "Kadak!";
                 } else if (ent.subtype === 'diya') {
                     points = 300;
                     AudioManager.powerUp();
@@ -1668,6 +1684,7 @@ function checkCollisions() {
                     AudioManager.collect();
                     VFX.createCollectBurst(ent.x + 40, ent.y + 40);
                     addScorePopup(ent.x + 40, ent.y, '+150', '#FFA000');
+                    feedbackText = "Mitha!";
                 } else if (ent.subtype === 'paan') {
                     points = 75;
                     gameState.chaiBoostTimer = Math.max(gameState.chaiBoostTimer, 120);
@@ -1707,9 +1724,15 @@ function checkCollisions() {
                     AudioManager.collect();
                     VFX.createCollectBurst(ent.x + 40, ent.y + 40);
                     addScorePopup(ent.x + 40, ent.y, `+${points}`, '#FFD700');
+                    if (Math.random() < 0.2) feedbackText = ["Mast!", "Gazab!", "Crispy!"][Math.floor(Math.random() * 3)];
                 }
                 gameState.score += Math.floor(points * player.scoreMultiplier);
                 ent.active = false;
+
+                if (feedbackText && Math.random() < 0.3) {
+                    addScorePopup(ent.x + 40, ent.y - 40, feedbackText, '#FFD700');
+                }
+
                 updateHUD();
             }
         }
@@ -1806,14 +1829,24 @@ function endGame(win) {
         gameState.totalDistanceTraveled += Math.floor(player.x / 10);
         AudioManager.levelComplete();
         VFX.flash('#FFD700', 0.3);
+
         if (gameState.level === 5) {
+            // Save Score ONLY on Final Win
+            saveHighScore(gameState.score + 1000); // Bonus for winning
             showFinalScreen();
+            // Also update final screen stats
+            document.getElementById('finalTotalDist').innerText = gameState.totalDistanceTraveled + 'm';
+            document.getElementById('finalTotalScore').innerText = gameState.score + 1000;
         } else {
             document.getElementById('winScreen').classList.remove('hidden');
         }
     } else {
         document.getElementById('gameOverScreen').classList.remove('hidden');
         document.getElementById('failScore').innerText = Math.floor(player.x / 10) + 'm';
+
+        // Save Score on Fail
+        saveHighScore(gameState.score);
+
         AudioManager.gameOver();
         VFX.shake(10);
     }
@@ -2017,6 +2050,89 @@ function handleNextLevelClick() {
     }
 }
 
+// --- Leaderboard & Rating System ---
+
+function saveHighScore(score) {
+    const KEY = 'cch_scores_v2'; // Reset for new logic
+    let scores = JSON.parse(localStorage.getItem(KEY)) || [];
+
+    // Check if score is already saved for this run to prevent duplicates on strict mode
+    // (Simple check: if same player has same score within last 5 seconds. Not perfect but okay for local)
+    const now = new Date();
+    const recent = scores.find(s => s.name === gameState.playerName && s.score === score && (now - new Date(s.date)) < 5000);
+    if (recent) return;
+
+    scores.push({ name: gameState.playerName, score: score, date: now.toISOString() });
+
+    // Sort descending
+    scores.sort((a, b) => b.score - a.score);
+
+    // Keep top 10
+    scores = scores.slice(0, 10);
+
+    localStorage.setItem(KEY, JSON.stringify(scores));
+    updateLeaderboardUI(scores);
+}
+
+function updateLeaderboardUI(scores) {
+    const createRows = (list) => {
+        return list.map((s, i) => `
+            <tr class="border-b border-white/5">
+                <td class="py-1 text-yellow-500/80">${i + 1}.</td>
+                <td class="py-1 font-bold text-white/90 truncate max-w-[120px]">${s.name}</td>
+                <td class="py-1 text-right text-yellow-400">${s.score}</td>
+            </tr>
+        `).join('');
+    };
+
+    const rows = createRows(scores);
+    const failBody = document.getElementById('leaderboardBodyFail');
+    const winBody = document.getElementById('leaderboardBodyWin');
+
+    if (failBody) failBody.innerHTML = rows;
+    if (winBody) winBody.innerHTML = rows;
+}
+
+function setupRatingUI() {
+    const handleRate = (e) => {
+        if (e.target.tagName === 'SPAN') {
+            const val = e.target.getAttribute('data-val');
+            const parent = e.target.parentElement;
+            const containerId = parent.id;
+
+            // Visual feedback - Highlight stars
+            Array.from(parent.children).forEach((child, idx) => {
+                child.style.opacity = (idx < val) ? '1' : '0.3';
+                child.style.transform = (idx < val) ? 'scale(1.2)' : 'scale(1)';
+            });
+
+            // Save locally
+            localStorage.setItem('cch_rating', val);
+
+            // Replace content with "Thank You" message
+            const wrapper = parent.parentElement;
+            wrapper.innerHTML = `
+                <div class="animate-pulse text-center">
+                    <p class="text-yellow-400 font-bold text-lg mb-1">Thank you for playing! ❤️</p>
+                    <p class="text-stone-400 text-sm mb-2">Global Rating: <span class="text-yellow-500 font-bold">4.9/5</span> ⭐</p>
+                    <a href="https://x.com/shubhamg_" target="_blank" 
+                       class="inline-block mt-2 bg-black text-white px-4 py-2 rounded-full text-sm font-bold border border-stone-600 hover:bg-stone-900 transition">
+                       Follow @shubhamg_ on 𝕏
+                    </a>
+                </div>
+            `;
+        }
+    };
+
+    const failContainer = document.getElementById('ratingContainerFail');
+    const winContainer = document.getElementById('ratingContainerWin');
+
+    if (failContainer) failContainer.addEventListener('click', handleRate);
+    if (winContainer) winContainer.addEventListener('click', handleRate);
+}
+// Init Rating UI once
+setupRatingUI();
+
 function handleRestartClick() {
     document.getElementById('gameOverScreen').classList.add('hidden');
     gameState.lives = 5;
@@ -2024,10 +2140,36 @@ function handleRestartClick() {
 }
 
 document.getElementById('startBtn').addEventListener('click', () => {
+    const nameInput = document.getElementById('playerNameInput');
+    if (nameInput && nameInput.value.trim() !== "") {
+        gameState.playerName = nameInput.value.trim();
+    }
     AudioManager.init();
     AudioManager.resume();
     showLevelIntro(0);
 });
+
+// Name Input Logic to Enable Start Button
+const nameInput = document.getElementById('playerNameInput');
+const startBtn = document.getElementById('startBtn');
+if (nameInput && startBtn) {
+    // Disable by default if empty
+    if (nameInput.value.trim() === "") {
+        startBtn.disabled = true;
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    nameInput.addEventListener('input', (e) => {
+        if (e.target.value.trim() !== "") {
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    });
+}
+
 document.getElementById('restartBtn').addEventListener('click', handleRestartClick);
 document.getElementById('nextLevelBtn').addEventListener('click', handleNextLevelClick);
 

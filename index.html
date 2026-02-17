@@ -11,15 +11,18 @@
 
 <body class="bg-stone-900 text-stone-100 min-h-screen flex flex-col overflow-hidden">
 
-    <header class="bg-gradient-to-r from-orange-800 via-orange-700 to-red-700 text-white shadow-lg border-b-4 border-yellow-500 z-50 shrink-0">
+    <header
+        class="bg-gradient-to-r from-orange-800 via-orange-700 to-red-700 text-white shadow-lg border-b-4 border-yellow-500 z-50 shrink-0">
         <div class="container mx-auto px-4 py-2 flex justify-center items-center">
             <h1 class="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 pulse-glow">
-                <span>🏰</span> Chandni Chowk Hustle <span class="text-yellow-300 text-sm font-normal ml-2">Deluxe</span>
+                <span>🏰</span> Chandni Chowk Hustle <span
+                    class="text-yellow-300 text-sm font-normal ml-2">Deluxe</span>
             </h1>
         </div>
     </header>
 
-    <main class="flex-grow w-full flex items-center justify-center bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    <main
+        class="flex-grow w-full flex items-center justify-center bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
 
         <section id="game-section" class="game-wrapper relative">
 
@@ -31,37 +34,49 @@
                 <div id="startScreen"
                     class="overlay pointer-events-auto p-4 bg-gradient-to-b from-stone-900/95 to-stone-800/95 backdrop-blur-sm">
                     <div class="text-center float-anim mb-3">
-                        <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 tracking-wider filter drop-shadow-lg leading-tight">
+                        <h1
+                            class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 tracking-wider filter drop-shadow-lg leading-tight">
                             CHANDNI<br>CHOWK<br>HUSTLE
                         </h1>
-                        <p class="text-yellow-200 mt-1 text-base font-medium tracking-wide">The Ultimate Old Delhi Platformer - Deluxe Edition</p>
+                        <p class="text-yellow-200 mt-1 text-base font-medium tracking-wide">The Ultimate Old Delhi
+                            Platformer - Deluxe Edition</p>
                     </div>
 
-                    <div class="bg-stone-700/60 p-4 rounded-2xl border-2 border-stone-600 w-full max-w-xl backdrop-blur-md flex flex-col items-center">
+                    <div
+                        class="bg-stone-700/60 p-4 rounded-2xl border-2 border-stone-600 w-full max-w-xl backdrop-blur-md flex flex-col items-center">
                         <h3 class="text-sm font-bold text-stone-300 uppercase tracking-widest mb-3">Select Runner</h3>
+
+                        <div class="mb-4 w-full flex justify-center">
+                            <input type="text" id="playerNameInput" placeholder="Enter Your Name"
+                                class="bg-stone-800 border-2 border-stone-600 text-yellow-500 text-center font-bold text-xl rounded-lg px-4 py-2 w-64 focus:outline-none focus:border-yellow-500 placeholder-stone-600 uppercase tracking-widest">
+                        </div>
 
                         <div class="flex justify-center gap-6 mb-4">
                             <button onclick="selectChar('raju')" id="btn-raju"
                                 class="char-card flex flex-col items-center p-3 bg-stone-800 rounded-xl w-28 group cursor-pointer shadow-xl">
-                                <span class="text-5xl mb-1 group-hover:scale-110 transition-transform filter drop-shadow-md">👦🏽</span>
+                                <span
+                                    class="text-5xl mb-1 group-hover:scale-110 transition-transform filter drop-shadow-md">👦🏽</span>
                                 <span class="font-black text-yellow-400 text-base tracking-wide">RAJU</span>
                                 <span class="text-xs text-stone-400 font-bold">Balanced</span>
                             </button>
 
                             <button onclick="selectChar('priya')" id="btn-priya"
                                 class="char-card flex flex-col items-center p-3 bg-stone-800 rounded-xl w-28 group cursor-pointer shadow-xl">
-                                <span class="text-5xl mb-1 group-hover:scale-110 transition-transform filter drop-shadow-md">👧🏽</span>
+                                <span
+                                    class="text-5xl mb-1 group-hover:scale-110 transition-transform filter drop-shadow-md">👧🏽</span>
                                 <span class="font-black text-pink-400 text-base tracking-wide">PRIYA</span>
                                 <span class="text-xs text-stone-400 font-bold">High Jump</span>
                             </button>
                         </div>
 
-                        <div class="w-full bg-stone-800/50 rounded-lg p-3 mb-4 text-xs text-stone-400 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div
+                            class="w-full bg-stone-800/50 rounded-lg p-3 mb-4 text-xs text-stone-400 grid grid-cols-2 gap-x-4 gap-y-1">
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">←→</kbd> Move</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Space</kbd> Jump</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">↓</kbd> Slide</span>
                             <span><kbd class="bg-stone-700 px-1.5 py-0.5 rounded text-stone-200">Shift</kbd> Dash</span>
-                            <span class="col-span-2 text-center text-yellow-500 mt-1">Collect 🪶 for double jump power!</span>
+                            <span class="col-span-2 text-center text-yellow-500 mt-1">Collect 🪶 for double jump
+                                power!</span>
                         </div>
 
                         <button id="startBtn"
@@ -75,7 +90,8 @@
                 <div id="levelIntroScreen" class="overlay hidden bg-stone-900 pointer-events-auto cursor-pointer">
                     <h2 id="levelTitle" class="text-4xl font-bold text-yellow-500 mb-2">LEVEL 1</h2>
                     <h3 id="levelName" class="text-5xl text-white mb-6 font-serif tracking-tighter">The Market</h3>
-                    <div class="bg-stone-800 p-6 rounded-xl border-l-8 border-orange-500 max-w-lg text-center shadow-2xl">
+                    <div
+                        class="bg-stone-800 p-6 rounded-xl border-l-8 border-orange-500 max-w-lg text-center shadow-2xl">
                         <p id="levelDesc" class="text-stone-300 italic text-xl">"Avoid the morning rush!"</p>
                     </div>
                     <div class="mt-6 text-stone-500 animate-pulse flex flex-col items-center">
@@ -87,10 +103,38 @@
                 <div id="gameOverScreen" class="overlay hidden pointer-events-auto">
                     <h2 class="text-7xl font-black text-red-600 mb-4 drop-shadow-lg">AREY YAAR!</h2>
                     <p class="text-2xl text-stone-200 mb-6 font-light">You caused a traffic jam!</p>
-                    <div class="bg-stone-800 p-6 rounded-2xl text-center mb-6 border-2 border-stone-600 min-w-[250px] shadow-2xl">
+                    <div
+                        class="bg-stone-800 p-6 rounded-2xl text-center mb-6 border-2 border-stone-600 min-w-[250px] shadow-2xl">
                         <p class="text-stone-400 text-sm uppercase mb-1 tracking-widest">Distance Reached</p>
                         <p id="failScore" class="text-5xl font-mono font-bold text-yellow-400">0m</p>
                     </div>
+                    <div class="bg-stone-800 p-4 rounded-xl w-full max-w-md mb-4 border border-stone-600">
+                        <h4 class="text-yellow-500 font-bold mb-2 uppercase tracking-widest text-sm">🏆 Wall of Fame
+                        </h4>
+                        <table class="w-full text-left text-sm text-stone-300">
+                            <thead class="border-b border-stone-700 text-stone-500">
+                                <tr>
+                                    <th class="pb-1">#</th>
+                                    <th class="pb-1">Name</th>
+                                    <th class="pb-1 text-right">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBodyFail" class="font-mono">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                    <div class="mb-6">
+                        <p class="text-stone-400 text-xs uppercase mb-2 tracking-widest">Rate the Game</p>
+                        <div class="flex justify-center gap-2 text-3xl cursor-pointer" id="ratingContainerFail">
+                            <span data-val="1">⭐</span><span data-val="2">⭐</span><span data-val="3">⭐</span><span
+                                data-val="4">⭐</span><span data-val="5">⭐</span>
+                        </div>
+                    </div>
+
                     <button id="restartBtn"
                         class="px-10 py-3 bg-white text-stone-900 font-black rounded-full hover:bg-gray-200 transition shadow-xl text-lg transform hover:scale-105">
                         Try Again
@@ -111,7 +155,7 @@
                     <div class="text-8xl mb-6 animate-bounce">👑</div>
                     <h2 class="text-6xl font-bold text-yellow-400 mb-4 text-center drop-shadow-xl">CHANDNI
                         CHOWK<br>CHAMPION!</h2>
-                    <p class="text-indigo-200 mb-8 text-xl">You conquered all 5 galis of Delhi.</p>
+                    <p class="text-indigo-200 mb-8 text-xl">You have conquered all of Chandni Chowk!</p>
 
                     <div class="grid grid-cols-2 gap-6 w-full max-w-2xl mb-8">
                         <div class="bg-white/10 p-6 rounded-2xl text-center backdrop-blur-md border border-white/20">
@@ -124,6 +168,33 @@
                         </div>
                     </div>
 
+                    <div
+                        class="bg-white/10 p-4 rounded-xl w-full max-w-md mb-6 border border-white/20 backdrop-blur-md">
+                        <h4 class="text-yellow-300 font-bold mb-2 uppercase tracking-widest text-sm">🏆 Wall of Fame
+                        </h4>
+                        <table class="w-full text-left text-sm text-indigo-100">
+                            <thead class="border-b border-white/10 text-indigo-300">
+                                <tr>
+                                    <th class="pb-1">#</th>
+                                    <th class="pb-1">Name</th>
+                                    <th class="pb-1 text-right">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBodyWin" class="font-mono">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mb-8">
+                        <p class="text-indigo-300 text-xs uppercase mb-2 tracking-widest">Rate this masterpiece</p>
+                        <div class="flex justify-center gap-2 text-3xl cursor-pointer" id="ratingContainerWin">
+                            <span data-val="1">⭐</span><span data-val="2">⭐</span><span data-val="3">⭐</span><span
+                                data-val="4">⭐</span><span data-val="5">⭐</span>
+                        </div>
+                        <p id="ratingMsgWin" class="text-yellow-300 text-xs h-4 mt-1"></p>
+                    </div>
+
                     <button onclick="location.reload()"
                         class="px-10 py-3 bg-white text-indigo-900 font-bold rounded-full hover:bg-gray-100 transition shadow-xl text-lg">
                         Play Again
@@ -134,23 +205,32 @@
                     class="absolute top-0 left-0 w-full p-3 flex justify-between text-white font-bold text-lg pointer-events-none hidden font-mono"
                     style="text-shadow: 2px 2px 0 #000;">
                     <div class="flex items-center gap-3">
-                        <div class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 flex items-center gap-2 shadow-lg">
-                            <span class="text-xl">🥟</span> <span id="scoreDisplay" class="text-yellow-300 text-xl">0</span>
+                        <div
+                            class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 flex items-center gap-2 shadow-lg">
+                            <span class="text-xl">🥟</span> <span id="scoreDisplay"
+                                class="text-yellow-300 text-xl">0</span>
                         </div>
                     </div>
                     <div class="flex space-x-3 items-center">
-                        <div id="chaiBoostBar" class="hidden bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-orange-400/50 shadow-lg">
+                        <div id="chaiBoostBar"
+                            class="hidden bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-orange-400/50 shadow-lg">
                             <div class="flex items-center gap-2">
                                 <span>🍵</span>
                                 <div class="w-20 h-3 bg-stone-700 rounded-full overflow-hidden">
-                                    <div id="chaiBoostFill" class="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full transition-all duration-100"></div>
+                                    <div id="chaiBoostFill"
+                                        class="h-full bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full transition-all duration-100">
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
-                        <div class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 shadow-lg">
-                            🚩 <span id="distDisplay" class="text-xl">0</span>m / <span id="targetDistDisplay" class="text-stone-400">400</span>m
+                        <div
+                            class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 shadow-lg">
+                            🚩 <span id="distDisplay" class="text-xl">0</span>m / <span id="targetDistDisplay"
+                                class="text-stone-400">400</span>m
                         </div>
-                        <div class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 text-red-400 flex items-center gap-2 shadow-lg">
+                        <div
+                            class="bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 text-red-400 flex items-center gap-2 shadow-lg">
                             <span class="text-xl">❤️</span> <span id="livesDisplay" class="text-xl">5</span>
                         </div>
                     </div>
@@ -171,12 +251,14 @@
                         <span class="key-hint">Shift</span>
                     </div>
                 </div>
-                <div id="scoreMultBar" class="hidden absolute top-16 right-3 bg-yellow-500/80 text-black font-bold px-3 py-1 rounded-full text-sm animate-pulse">
+                <div id="scoreMultBar"
+                    class="hidden absolute top-16 right-3 bg-yellow-500/80 text-black font-bold px-3 py-1 rounded-full text-sm animate-pulse">
                     2x SCORE!
                 </div>
             </div>
 
-            <div class="md:hidden absolute bottom-[-130px] left-0 w-full grid grid-cols-5 gap-1.5 p-2 bg-stone-900 h-28">
+            <div
+                class="md:hidden absolute bottom-[-130px] left-0 w-full grid grid-cols-5 gap-1.5 p-2 bg-stone-900 h-28">
                 <button id="leftBtn"
                     class="bg-stone-700 text-white rounded-lg font-bold text-2xl border-b-4 border-stone-800 active:border-b-0 active:translate-y-1">⬅️</button>
                 <button id="slideBtn"
