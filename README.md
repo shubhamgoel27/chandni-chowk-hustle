@@ -1,12 +1,12 @@
-# 🏰 Chandni Chowk Hustle: Deluxe Edition
+# 🏰 Chandni Chowk Bros: Dhamaal Edition
 
 > *The Ultimate Old Delhi Platformer!*
 
-Welcome to the chaotic, colorful, and deliciously dangerous streets of Old Delhi! **Chandni Chowk Hustle** is a high-octane endless runner (well, until the Red Fort) where you dodge rickshaws, outsmart monkeys, and grab as many samosas as you can!
+Welcome to the chaotic, colorful, and deliciously dangerous streets of Old Delhi! **Chandni Chowk Bros** is a high-octane endless runner (well, until the Red Fort) where you dodge rickshaws, outsmart monkeys, and grab as many samosas as you can!
 
 ### [🎮 Play Now on chandni-chowk-bros.com](https://chandni-chowk-bros.com/)
 
-![Chandni Chowk Hustle Gameplay](game_screen.png)
+![Chandni Chowk Bros Gameplay](game_screen.png)
 
 ## 🎮 How to Play
 
