@@ -148,3 +148,6 @@ const Leaderboard = (() => {
     },
   };
 })();
+
+// Allow import in Node/test environments while keeping browser global intact
+if (typeof module !== 'undefined' && module.exports) module.exports = Leaderboard;
