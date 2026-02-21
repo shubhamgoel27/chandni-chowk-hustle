@@ -108,8 +108,13 @@
                         <p id="failScore" class="text-5xl font-mono font-bold text-yellow-400">0m</p>
                     </div>
                     <div class="bg-stone-800 p-4 rounded-xl w-full max-w-md mb-4 border border-stone-600">
-                        <h4 class="text-yellow-500 font-bold mb-2 uppercase tracking-widest text-sm">🏆 Wall of Fame
-                        </h4>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-yellow-500 font-bold uppercase tracking-widest text-sm">🏆 Wall of Fame</h4>
+                            <div class="flex gap-2 text-xs font-bold">
+                                <button class="lb-tab border-b-2 pb-0.5 cursor-pointer transition-colors text-stone-500 border-transparent" data-tab="local">Local</button>
+                                <button class="lb-tab border-b-2 pb-0.5 cursor-pointer transition-colors text-yellow-400 border-yellow-400" data-tab="global">Global</button>
+                            </div>
+                        </div>
                         <table class="w-full text-left text-sm text-stone-300">
                             <thead class="border-b border-stone-700 text-stone-500">
                                 <tr>
@@ -169,8 +174,13 @@
 
                     <div
                         class="bg-white/10 p-4 rounded-xl w-full max-w-md mb-6 border border-white/20 backdrop-blur-md">
-                        <h4 class="text-yellow-300 font-bold mb-2 uppercase tracking-widest text-sm">🏆 Wall of Fame
-                        </h4>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-yellow-300 font-bold uppercase tracking-widest text-sm">🏆 Wall of Fame</h4>
+                            <div class="flex gap-2 text-xs font-bold">
+                                <button class="lb-tab border-b-2 pb-0.5 cursor-pointer transition-colors text-stone-500 border-transparent" data-tab="local">Local</button>
+                                <button class="lb-tab border-b-2 pb-0.5 cursor-pointer transition-colors text-yellow-400 border-yellow-400" data-tab="global">Global</button>
+                            </div>
+                        </div>
                         <table class="w-full text-left text-sm text-indigo-100">
                             <thead class="border-b border-white/10 text-indigo-300">
                                 <tr>
@@ -275,6 +285,7 @@
 
     <script src="audio.js"></script>
     <script src="effects.js"></script>
+    <script src="leaderboard.js"></script>
     <script src="game.js"></script>
 </body>
 

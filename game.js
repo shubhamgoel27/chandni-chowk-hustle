@@ -2052,26 +2052,19 @@ function handleNextLevelClick() {
 
 // --- Leaderboard & Rating System ---
 
+// Active tab: 'local' | 'global'
+let leaderboardTab = Leaderboard.isOnline ? 'global' : 'local';
+
 function saveHighScore(score) {
-    const KEY = 'cch_scores_v2'; // Reset for new logic
-    let scores = JSON.parse(localStorage.getItem(KEY)) || [];
+    const localScores = Leaderboard.submit(gameState.playerName, score);
+    updateLeaderboardUI(localScores);
 
-    // Check if score is already saved for this run to prevent duplicates on strict mode
-    // (Simple check: if same player has same score within last 5 seconds. Not perfect but okay for local)
-    const now = new Date();
-    const recent = scores.find(s => s.name === gameState.playerName && s.score === score && (now - new Date(s.date)) < 5000);
-    if (recent) return;
-
-    scores.push({ name: gameState.playerName, score: score, date: now.toISOString() });
-
-    // Sort descending
-    scores.sort((a, b) => b.score - a.score);
-
-    // Keep top 10
-    scores = scores.slice(0, 10);
-
-    localStorage.setItem(KEY, JSON.stringify(scores));
-    updateLeaderboardUI(scores);
+    // If global is the active tab, refresh it in the background
+    if (leaderboardTab === 'global') {
+        Leaderboard.getGlobalScores().then(global => {
+            if (global) updateLeaderboardUI(global);
+        });
+    }
 }
 
 function updateLeaderboardUI(scores) {
@@ -2092,6 +2085,35 @@ function updateLeaderboardUI(scores) {
     if (failBody) failBody.innerHTML = rows;
     if (winBody) winBody.innerHTML = rows;
 }
+
+function switchLeaderboardTab(tab) {
+    leaderboardTab = tab;
+
+    // Update active tab styling
+    document.querySelectorAll('.lb-tab').forEach(el => {
+        el.classList.toggle('text-yellow-400', el.dataset.tab === tab);
+        el.classList.toggle('border-yellow-400', el.dataset.tab === tab);
+        el.classList.toggle('text-stone-500', el.dataset.tab !== tab);
+        el.classList.toggle('border-transparent', el.dataset.tab !== tab);
+    });
+
+    if (tab === 'local') {
+        updateLeaderboardUI(Leaderboard.getLocalScores());
+    } else {
+        Leaderboard.getGlobalScores().then(global => {
+            if (global) updateLeaderboardUI(global);
+            else {
+                // Fallback: show local if fetch fails
+                updateLeaderboardUI(Leaderboard.getLocalScores());
+            }
+        });
+    }
+}
+
+// Attach tab listeners once DOM is ready
+document.querySelectorAll('.lb-tab').forEach(el => {
+    el.addEventListener('click', () => switchLeaderboardTab(el.dataset.tab));
+});
 
 function setupRatingUI() {
     const handleRate = (e) => {
